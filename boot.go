@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"goNES/nes"
 	"io/ioutil"
 	"os"
 )
@@ -17,12 +18,14 @@ func main() {
 	}
 	filename := os.Args[1]
 
-	romdata, err := ioutil.ReadFile(filename)
+	data, err := ioutil.ReadFile(filename)
 	if err != nil {
 		fmt.Println("Error: can not open NES file.", filename)
 		os.Exit(ERROR_EXIT)
 	}
 
-	println(len(romdata))
+	nes := nes.New(data)
+	fmt.Println(nes)
+	//println(data[1])
 
 }
