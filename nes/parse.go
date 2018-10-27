@@ -2,6 +2,11 @@ package nes
 
 import "fmt"
 
+const NES_HEADER_SIZE int = 0x0010;
+
+const PROGRAM_ROM_SIZE int = 0x4000;   //16KB unit プログラムROMの単位
+const CHARACTER_ROM_SIZE int = 0x2000; //8KB unit キャラクターROMの単位
+
 func parse(nes []byte) Nes{
 
 	fmt.Println("---------- Parse --------------")
