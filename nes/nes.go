@@ -1,5 +1,9 @@
 package nes
 
+import (
+	"goNes/bus"
+)
+
 type Rom struct {
 	ProgramRom   []byte
 	CharacterRom []byte
@@ -7,7 +11,16 @@ type Rom struct {
 	mapper uint8
 }
 
-func New(data []byte) Rom {
-	return parse(data)
+type Nes struct {
+	Rom Rom
+	Ram bus.Ram
+}
+
+func New(data []byte) Nes {
+	return Nes{Rom: parse(data)}
+}
+
+func (nes *Nes) Load() {
+	nes.Ram = bus.NewRam(2048)
 }
 

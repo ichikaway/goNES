@@ -25,7 +25,10 @@ func main() {
 	}
 
 	nes := nes.New(data)
-	fmt.Println(nes)
+	nes.Load()
+	//nes.Ram.Write(1, 1)
+	//nes.Ram.Reset()
+	fmt.Println(nes.Ram)
 	//println(data[1])
 
 }
