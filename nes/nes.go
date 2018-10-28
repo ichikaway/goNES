@@ -28,6 +28,6 @@ func (nes *Nes) Load() {
 	for i := 0; i < len(nes.Rom.CharacterRom); i++ {
 		nes.characterMem.Write(i, nes.Rom.CharacterRom[i])
 	}
-
+	nes.ProgramRom = bus.NewRom(nes.Rom.ProgramRom)
 }
 
