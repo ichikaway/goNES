@@ -5,17 +5,17 @@ import (
 )
 
 type Rom struct {
-	ProgramRom   []byte
-	CharacterRom []byte
+	ProgramRom         []byte
+	CharacterRom       []byte
 	isHorizontalMirror bool
-	mapper uint8
+	mapper             uint8
 }
 
 type Nes struct {
-	Rom Rom
-	Ram bus.Ram
+	Rom          Rom
+	Ram          bus.Ram
 	characterMem bus.Ram
-	ProgramRom bus.Rom
+	ProgramRom   bus.Rom
 }
 
 func New(data []byte) Nes {
@@ -28,6 +28,6 @@ func (nes *Nes) Load() {
 	for i := 0; i < len(nes.Rom.CharacterRom); i++ {
 		nes.characterMem.Write(i, nes.Rom.CharacterRom[i])
 	}
+
 	nes.ProgramRom = bus.NewRom(nes.Rom.ProgramRom)
 }
-

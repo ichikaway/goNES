@@ -19,4 +19,3 @@ func (ram Ram) Read(addr int) byte {
 func (ram *Ram) Write(addr int, val byte) {
 	ram.ram[addr] = val
 }
-

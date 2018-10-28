@@ -7,7 +7,7 @@ const NES_HEADER_SIZE int = 0x0010;
 const PROGRAM_ROM_SIZE int = 0x4000;   //16KB unit プログラムROMの単位
 const CHARACTER_ROM_SIZE int = 0x2000; //8KB unit キャラクターROMの単位
 
-func parse(nes []byte) Rom{
+func parse(nes []byte) Rom {
 
 	fmt.Println("---------- Parse --------------")
 	programRomPages := nes[4];
@@ -24,10 +24,9 @@ func parse(nes []byte) Rom{
 	fmt.Printf("Character ROM end:  0x%x (%d)\n", characterRomEnd, characterRomEnd);
 	fmt.Printf("isHrizontalMirror: %d\n", isHorizontalMirror);
 	fmt.Printf("Mapper: %d\n", mapper);
-
 	nesData := Rom{}
-	nesData.ProgramRom = nes[NES_HEADER_SIZE : (characterRomStart - 1)]
-	nesData.CharacterRom = nes[characterRomStart : characterRomEnd]
+	nesData.ProgramRom = nes[NES_HEADER_SIZE:(characterRomStart - 1)]
+	nesData.CharacterRom = nes[characterRomStart:characterRomEnd]
 	nesData.mapper = mapper
 	if isHorizontalMirror == 1 {
 		nesData.isHorizontalMirror = true
@@ -35,6 +34,5 @@ func parse(nes []byte) Rom{
 
 	fmt.Printf("ProgramRom size: %x, %d\n", len(nesData.ProgramRom), len(nesData.ProgramRom));
 	fmt.Printf("CharacterRom size: %x, %d\n", len(nesData.CharacterRom), len(nesData.CharacterRom));
-
 	return nesData
 }
