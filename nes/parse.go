@@ -33,8 +33,8 @@ func parse(nes []byte) Nes{
 		nesData.isHorizontalMirror = true
 	}
 
-	fmt.Printf("ProgramRom size: %d\n", len(nesData.ProgramRom));
-	fmt.Printf("CharacterRom size: %d\n", len(nesData.CharacterRom));
+	fmt.Printf("ProgramRom size: %x, %d\n", len(nesData.ProgramRom), len(nesData.ProgramRom));
+	fmt.Printf("CharacterRom size: %x, %d\n", len(nesData.CharacterRom), len(nesData.CharacterRom));
 
 	return nesData
 }
