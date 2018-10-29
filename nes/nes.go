@@ -16,6 +16,7 @@ type Nes struct {
 	Ram          bus.Ram
 	characterMem bus.Ram
 	ProgramRom   bus.Rom
+	PpuBus       bus.CharacterRam
 }
 
 func New(data []byte) Nes {
@@ -30,4 +31,5 @@ func (nes *Nes) Load() {
 	}
 
 	nes.ProgramRom = bus.NewRom(nes.Rom.ProgramRom)
+	nes.PpuBus = bus.NewPpuBus(&nes.characterMem)
 }
