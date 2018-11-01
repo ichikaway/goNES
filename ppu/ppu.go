@@ -8,6 +8,7 @@ import (
 const SPRITES_NUMBER = 0x100
 
 type Ppu struct {
+	Registers       []int
 	Cycle           int
 	Line            int
 	IsValidVramAddr bool
@@ -30,10 +31,30 @@ type Ppu struct {
 	IsHrizontalScroll bool
 	ScrollX           int
 	ScrollY           int
-	isHrizontalMirror bool
+	IsHrizontalMirror bool
 }
 
-func NewPpu(bus bus.PpuBus, interrupts cpu.Interrupts, isHrizontalMirror bool) Ppu {
-	ppu := Ppu{}
+func NewPpu(ppubus bus.PpuBus, interrupts cpu.Interrupts, isHrizontalMirror bool) Ppu {
+	ppu := Ppu{
+		Registers:         make([]int, 7),
+		Cycle:             0,
+		Line:              0,
+		IsValidVramAddr:   false,
+		IsLowerVramAddr:   false,
+		IsHrizontalScroll: true,
+		VramAddr:          0x0000,
+		Vram:              bus.NewRam(0x2000),
+		VramReadBuf:       0,
+		SpriteRam:         bus.NewRam(0x100),
+		SpriteRamAddr:     0,
+		//Background: []
+		//Sprites: []
+		Bus:               ppubus,
+		Interrupts:        interrupts,
+		IsHrizontalMirror: isHrizontalMirror,
+		ScrollX:           0,
+		ScrollY:           0,
+		Palette:           NewPaletteRam(),
+	}
 	return ppu
 }
