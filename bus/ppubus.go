@@ -1,17 +1,17 @@
 package bus
 
-type CharacterRam struct {
+type PpuBus struct {
 	CharacterRam Ram
 }
 
-func NewPpuBus(characterRam *Ram) CharacterRam {
-		return CharacterRam{CharacterRam: *characterRam}
+func NewPpuBus(characterRam *Ram) PpuBus {
+		return PpuBus{CharacterRam: *characterRam}
 }
 
-func (ram CharacterRam) readByPpu(addr int) byte {
+func (ram PpuBus) readByPpu(addr int) byte {
 	return ram.CharacterRam.Read(addr)
 }
 
-func (ram *CharacterRam) writeByPpu(addr int, val byte) {
+func (ram *PpuBus) writeByPpu(addr int, val byte) {
 	ram.CharacterRam.Write(addr, val)
 }

@@ -17,7 +17,7 @@ type Nes struct {
 	Ram          bus.Ram
 	characterMem bus.Ram
 	ProgramRom   bus.Rom
-	PpuBus       bus.CharacterRam
+	PpuBus       bus.PpuBus
 	Interrupts   cpu.Interrupts
 }
 
