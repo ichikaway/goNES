@@ -58,3 +58,15 @@ func NewPpu(ppubus bus.PpuBus, interrupts cpu.Interrupts, isHrizontalMirror bool
 	}
 	return ppu
 }
+
+func (this *Ppu)TransferSprite(index int, data byte) {
+	// The DMA transfer will begin at the current OAM write address.
+	// It is common practice to initialize it to 0 with a write to PPU 0x2003 before the DMA transfer.
+	// Different starting addresses can be used for a simple OAM cycling technique
+	// to alleviate sprite priority conflicts by flickering. If using this technique
+	// after the DMA OAMADDR should be set to 0 before the end of vblank to prevent potential OAM corruption
+	// (See: Errata).
+	// However, due to OAMADDR writes also having a "corruption" effect[5] this technique is not recommended.
+	addr := index + this.SpriteRamAddr
+	this.SpriteRam.Write(addr % 0x100, data)
+}
