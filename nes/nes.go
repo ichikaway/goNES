@@ -1,10 +1,11 @@
 package nes
 
 import (
+	"goNES/bus"
 	"goNES/cpu"
+	"goNES/cpubus"
 	"goNES/dma"
 	"goNES/ppu"
-	"goNES/bus"
 )
 
 type Rom struct {
@@ -23,6 +24,7 @@ type Nes struct {
 	Interrupts   cpu.Interrupts
 	Dma          dma.Dma
 	Ppu          ppu.Ppu
+	CpuBus       cpubus.CpuBus
 }
 
 func New(data []byte) Nes {
@@ -43,4 +45,11 @@ func (nes *Nes) Load() {
 	nes.Ppu = ppu.NewPpu(nes.PpuBus, nes.Interrupts, nes.Rom.isHorizontalMirror)
 
 	nes.Dma = dma.NewDma(nes.Ram, nes.Ppu)
+
+	nes.CpuBus = cpubus.NewCpuBus(
+		nes.Ram,
+		nes.ProgramRom,
+		nes.Ppu,
+		nes.Dma,
+		)
 }
