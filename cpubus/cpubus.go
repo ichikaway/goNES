@@ -25,3 +25,32 @@ func NewCpuBus(ram bus.Ram, programRom bus.Rom, ppu ppu.Ppu, dma dma.Dma) CpuBus
 	return cpuBus
 }
 
+func (this CpuBus) ReadByCpu(addr int) byte {
+	switch {
+	case 0x0000 <= addr && addr <= 0x1FFF:
+		return this.Ram.Read(addr)
+	case 0x2000 <= addr && addr <= 0x3FFF:
+		return this.Ppu.Read(addr - 0x2000)
+	case addr == 0x4016:
+		// todo  0x4016 => self.keypad.read(),
+		return 0x0000
+	case addr == 0x4017:
+		// todo 2payler
+		return 0x0000
+	case 0x4000 <= addr && addr <= 0x401F:
+		//todo  0x4000...0x401F => self.apu.read(addr - 0x4000),
+		return 0x0000
+	case 0x8000 <= addr && addr <= 0xBFFF:
+		return this.ProgramRom.Read(addr - 0x8000)
+
+	case 0xC000 <= addr && addr <= 0xFFFF:
+		if this.ProgramRom.Size() <= 0x4000 {
+			return this.ProgramRom.Read(addr - 0xC000)
+		}
+		return this.ProgramRom.Read(addr - 0x8000)
+	}
+	if addr < 0x0800 {
+		return this.Ram.Read(addr)
+	}
+	return 0x0000
+}
