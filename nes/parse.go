@@ -25,7 +25,9 @@ func parse(nes []byte) Rom {
 	fmt.Printf("isHrizontalMirror: %d\n", isHorizontalMirror);
 	fmt.Printf("Mapper: %d\n", mapper);
 	nesData := Rom{}
-	nesData.ProgramRom = nes[NES_HEADER_SIZE:(characterRomStart - 1)]
+
+	//スライスは、[n:m]の場合、mはm-1番目までのため、プログラムROMの終端はcharacterRomStartで良い
+	nesData.ProgramRom = nes[NES_HEADER_SIZE:(characterRomStart)]
 	nesData.CharacterRom = nes[characterRomStart:characterRomEnd]
 	nesData.mapper = mapper
 	if isHorizontalMirror == 1 {
