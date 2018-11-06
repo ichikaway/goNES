@@ -68,5 +68,10 @@ func (this *Ppu)TransferSprite(index int, data byte) {
 	// (See: Errata).
 	// However, due to OAMADDR writes also having a "corruption" effect[5] this technique is not recommended.
 	addr := index + this.SpriteRamAddr
-	this.SpriteRam.Write(addr % 0x100, data)
+	this.SpriteRam.Write(addr % 0x100, data) //256以上のアドレスに入れさせないために256の剰余を求める
+}
+
+func (this Ppu) Read(addr int) byte {
+	//todo
+	return 0x0000
 }
