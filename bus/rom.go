@@ -12,6 +12,6 @@ func (rom Rom) Read(addr int) byte {
 	return rom.rom[addr]
 }
 
-func (rom Rom) size() int {
+func (rom Rom) Size() int {
 	return len(rom.rom)
 }
