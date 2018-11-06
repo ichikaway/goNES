@@ -26,7 +26,7 @@ func (dma Dma) isDmaProcessing() bool {
 	return dma.isProcessing
 }
 
-func (this *Dma) runDma() {
+func (this *Dma) RunDma() {
 	if !this.isProcessing {
 		return
 	}
@@ -36,7 +36,7 @@ func (this *Dma) runDma() {
 	this.isProcessing = false;
 }
 
-func (dma *Dma) write(data int) {
+func (dma *Dma) Write(data int) {
 	dma.RamAddr = data << 8
 	dma.isProcessing = true
 }
