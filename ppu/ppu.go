@@ -75,3 +75,8 @@ func (this Ppu) Read(addr int) byte {
 	//todo
 	return 0x0000
 }
+
+func (this *Ppu) Write(addr int, data byte) {
+	//todo
+}
+

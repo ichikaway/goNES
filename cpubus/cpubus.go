@@ -54,3 +54,26 @@ func (this CpuBus) ReadByCpu(addr int) byte {
 	}
 	return 0x0000
 }
+
+
+func (this *CpuBus) WriteByCpu(addr int, data byte) {
+	switch {
+	case 0x0000 <= addr && addr <= 0x1FFF:
+		this.Ram.Write(addr&0x07FF, data)
+	case 0x2000 <= addr && addr <= 0x3FFF:
+		this.Ppu.Write(addr-0x2000, data)
+	case addr == 0x4014:
+		this.Dma.Write(int(data))
+	case addr == 0x4016:
+		// todo  0x4016 => self.keypad.write(data),
+	case addr == 0x4017:
+		// todo 2payler
+	case 0x4000 <= addr && addr <= 0x401F:
+		//todo  0x4000...0x401F => self.apu.write(addr - 0x4000, data),
+	case 0x8000 <= addr && addr <= 0xFFFF:
+		//todo
+		//println!("switch bank to {}", data);
+		//self.mmc.set_bank(data);
+	}
+}
+
