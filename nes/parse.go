@@ -13,7 +13,7 @@ func parse(nes []byte) Rom {
 	programRomPages := nes[4];
 	characterRomPages := nes[5];
 	isHorizontalMirror := nes[6] &^ 0x01 // !(nes[6] & 0x01)
-	mapper := (((nes[6] & 0xF0) >> 4) | nes[7]&0xF0)
+	mapper := ((nes[6] & 0xF0) >> 4) | nes[7]&0xF0
 
 	characterRomStart := NES_HEADER_SIZE + (int(programRomPages) * PROGRAM_ROM_SIZE)
 	characterRomEnd := characterRomStart + (int(characterRomPages) * CHARACTER_ROM_SIZE)
