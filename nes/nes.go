@@ -26,6 +26,7 @@ type Nes struct {
 	Dma          dma.Dma
 	Ppu          ppu.Ppu
 	CpuBus       cpubus.CpuBus
+	Cpu          cpu.Cpu
 }
 
 func New(data []byte) Nes {
@@ -53,4 +54,6 @@ func (nes *Nes) Load() {
 		nes.Ppu,
 		nes.Dma,
 		)
+
+	nes.Cpu = cpu.NewCpu(nes.CpuBus, nes.Interrupts)
 }
