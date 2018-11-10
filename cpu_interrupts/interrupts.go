@@ -1,4 +1,4 @@
-package cpu
+package cpu_interrupts
 
 type Interrupts struct {
 	Nmi bool

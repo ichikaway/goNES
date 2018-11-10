@@ -2,7 +2,7 @@ package ppu
 
 import (
 	"goNES/bus"
-	"goNES/cpu"
+	"goNES/cpu_interrupts"
 )
 
 const SPRITES_NUMBER = 0x100
@@ -27,14 +27,14 @@ type Ppu struct {
 	//Sprites
 
 	Palette           PaletteRam
-	Interrupts        cpu.Interrupts
+	Interrupts        cpu_interrupts.Interrupts
 	IsHrizontalScroll bool
 	ScrollX           int
 	ScrollY           int
 	IsHrizontalMirror bool
 }
 
-func NewPpu(ppubus bus.PpuBus, interrupts cpu.Interrupts, isHrizontalMirror bool) Ppu {
+func NewPpu(ppubus bus.PpuBus, interrupts cpu_interrupts.Interrupts, isHrizontalMirror bool) Ppu {
 	ppu := Ppu{
 		Registers:         make([]int, 7),
 		Cycle:             0,
