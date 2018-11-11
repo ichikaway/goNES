@@ -14,6 +14,21 @@ type CpuBus struct {
 	Dma dma.Dma
 }
 
+
+func (this CpuBus) ReadWord(addr int) uint16 {
+	/**
+	fn read_word(&mut self, addr: u16) -> u16 {
+		let lower = self.read(addr) as u16;
+		let upper = self.read(addr + 1) as u16;
+		(upper << 8 | lower) as u16
+	}
+	 */
+	lower := this.ReadByCpu(addr)
+	upper := this.ReadByCpu(addr + 1)
+	return uint16(upper << 8 | lower)
+}
+
+
 func NewCpuBus(ram bus.Ram, programRom bus.Rom, ppu ppu.Ppu, dma dma.Dma) CpuBus {
 
 	cpuBus := CpuBus{
