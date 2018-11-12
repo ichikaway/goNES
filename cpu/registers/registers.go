@@ -10,14 +10,14 @@ type Registers struct {
 }
 
 type Status struct {
-	negative     bool
-	overflow     bool
-	reserved     bool
-	break_mode   bool
-	decimal_mode bool
-	interrupt    bool
-	zero         bool
-	carry        bool
+	Negative     bool
+	Overflow     bool
+	Reserved     bool
+	Break_mode   bool
+	Decimal_mode bool
+	Interrupt    bool
+	Zero         bool
+	Carry        bool
 }
 
 func GetDefaultRegisters() Registers {
@@ -28,14 +28,14 @@ func GetDefaultRegisters() Registers {
 		PC: 0x8000,
 		SP: 0xFD,
 		P: Status{
-			negative:     false,
-			overflow:     false,
-			reserved:     true,
-			break_mode:   true,
-			decimal_mode: false,
-			interrupt:    true,
-			zero:         false,
-			carry:        false,
+			Negative:     false,
+			Overflow:     false,
+			Reserved:     true,
+			Break_mode:   true,
+			Decimal_mode: false,
+			Interrupt:    true,
+			Zero:         false,
+			Carry:        false,
 		},
 	}
 }
