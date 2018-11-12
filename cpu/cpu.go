@@ -24,3 +24,9 @@ func NewCpu(cpubus cpubus.CpuBus, interrupts cpu_interrupts.Interrupts) Cpu {
 
 	}
 }
+
+func (cpu *Cpu) Reset() {
+	cpu.Registers = registers.GetDefaultRegisters()
+	cpu.Registers.PC = cpu.CpuBus.ReadWord(0xFFFC)
+	fmt.Printf("Initialize pc: %04x\n", cpu.Registers.PC)
+}

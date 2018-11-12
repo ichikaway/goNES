@@ -53,7 +53,8 @@ func (nes *Nes) Load() {
 		nes.ProgramRom,
 		nes.Ppu,
 		nes.Dma,
-		)
+	)
 
 	nes.Cpu = cpu.NewCpu(nes.CpuBus, nes.Interrupts)
+	nes.Cpu.Reset()
 }
