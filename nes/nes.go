@@ -58,3 +58,29 @@ func (nes *Nes) Load() {
 	nes.Cpu = cpu.NewCpu(nes.CpuBus, nes.Interrupts)
 	nes.Cpu.Reset()
 }
+
+func (nes *Nes) frame() {
+	for {
+		cycle := 0
+		if nes.Dma.IsDmaProcessing() {
+			nes.Dma.RunDma()
+			cycle = 514
+		}
+		cycle += nes.Cpu.Run()
+
+		/* todo
+		    $renderingData = $this->ppu->run($cycle * 3);
+            if ($renderingData) {
+                $this->cpu->bus->keypad->fetch();
+                $this->renderer->render($renderingData);
+                break;
+            }
+		 */
+	}
+}
+
+func (nes Nes) Start() {
+	for {
+		nes.frame()
+	}
+}

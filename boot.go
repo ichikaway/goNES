@@ -26,9 +26,11 @@ func main() {
 
 	nes := nes.New(data)
 	nes.Load()
+	nes.Start()
+
 	//nes.Ram.Write(1, 1)
 	//nes.Ram.Reset()
-	fmt.Println(nes.Ram)
+	//fmt.Println(nes.Ram)
 	//println(data[1])
 
 }
