@@ -9,27 +9,27 @@ func NewInterrupts() Interrupts {
 	return Interrupts{Nmi:false, Irq:false}
 }
 
-func (this Interrupts) isNmiAssert() bool {
+func (this Interrupts) IsNmiAssert() bool {
 	return this.Nmi;
 }
 
 
-func (this Interrupts) isIrqAssert() bool {
+func (this Interrupts) IsIrqAssert() bool {
 	return this.Irq;
 }
 
-func (this *Interrupts) assertNmi() {
+func (this *Interrupts) AssertNmi() {
 	this.Nmi = true
 }
 
-func (this *Interrupts) deassertNmi() {
+func (this *Interrupts) DeassertNmi() {
 	this.Nmi = false
 }
 
-func (this *Interrupts) assertIrq(){
+func (this *Interrupts) AssertIrq(){
 	this.Nmi = true
 }
 
-func (this *Interrupts) deassertIrq() {
+func (this *Interrupts) DeassertIrq() {
 	this.Nmi = false
 }
