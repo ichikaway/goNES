@@ -23,9 +23,9 @@ func (this CpuBus) ReadWord(addr int) uint16 {
 		(upper << 8 | lower) as u16
 	}
 	 */
-	lower := this.ReadByCpu(addr)
-	upper := this.ReadByCpu(addr + 1)
-	return uint16(upper << 8 | lower)
+	lower := uint16(this.ReadByCpu(addr))
+	upper := uint16(this.ReadByCpu(addr + 1))
+	return upper << 8 | lower
 }
 
 
