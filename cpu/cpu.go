@@ -38,13 +38,12 @@ func (cpu *Cpu) Reset() {
  */
 func (cpu *Cpu) pushStatus() {
 	p := cpu.Registers.P
-	status := util.Bool2Uint8(p.Negative) << 7 | util.Bool2Uint8(p.Overflow) << 6 |
-		util.Bool2Uint8(p.Reserved) << 5 | util.Bool2Uint8(p.Break_mode) << 4 |
-		util.Bool2Uint8(p.Decimal_mode) << 3 | util.Bool2Uint8(p.Interrupt) << 2 |
-		util.Bool2Uint8(p.Zero) << 1 | util.Bool2Uint8(p.Carry)
+	status := util.Bool2Uint8(p.Negative)<<7 | util.Bool2Uint8(p.Overflow)<<6 |
+		util.Bool2Uint8(p.Reserved)<<5 | util.Bool2Uint8(p.Break_mode)<<4 |
+		util.Bool2Uint8(p.Decimal_mode)<<3 | util.Bool2Uint8(p.Interrupt)<<2 |
+		util.Bool2Uint8(p.Zero)<<1 | util.Bool2Uint8(p.Carry)
 	cpu.push(status)
 }
-
 
 func (cpu *Cpu) push(data byte) {
 	addr := 0x0100 | int16(cpu.Registers.SP&0xFF)
@@ -72,6 +71,7 @@ func (cpu *Cpu) processNmi() {
 	cpu.push(byte(cpu.Registers.PC))
 	cpu.pushStatus()
 	cpu.Registers.P.Interrupt = true
+	//todo
 	//cpu.Registers.PC =
 
 }
@@ -80,6 +80,8 @@ func (cpu *Cpu) Run() int {
 	if cpu.Interrupts.IsNmiAssert() {
 		cpu.processNmi()
 	}
+
+	//todo
 
 	return 0 //dummy
 }
