@@ -22,7 +22,7 @@ func NewDma(ram bus.Ram, ppu ppu.Ppu) Dma {
 	return dma
 }
 
-func (dma Dma) isDmaProcessing() bool {
+func (dma Dma) IsDmaProcessing() bool {
 	return dma.isProcessing
 }
 
