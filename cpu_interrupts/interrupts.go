@@ -10,12 +10,12 @@ func NewInterrupts() Interrupts {
 }
 
 func (this Interrupts) IsNmiAssert() bool {
-	return this.Nmi;
+	return this.Nmi
 }
 
 
 func (this Interrupts) IsIrqAssert() bool {
-	return this.Irq;
+	return this.Irq
 }
 
 func (this *Interrupts) AssertNmi() {
@@ -27,9 +27,9 @@ func (this *Interrupts) DeassertNmi() {
 }
 
 func (this *Interrupts) AssertIrq(){
-	this.Nmi = true
+	this.Irq = true
 }
 
 func (this *Interrupts) DeassertIrq() {
-	this.Nmi = false
+	this.Irq = false
 }
