@@ -80,6 +80,8 @@ func (cpu *Cpu) processNmi() {
 	cpu.Registers.PC = cpu.CpuBus.ReadWord(0xFFFA)
 }
 
+
+
 func (cpu *Cpu) Run() int {
 	if cpu.Interrupts.IsNmiAssert() {
 		cpu.processNmi()
@@ -89,6 +91,15 @@ func (cpu *Cpu) Run() int {
 	}
 
 	//todo
+	/*
+	    $opcode = $this->fetch($this->registers->pc, 'Byte');
+        $ocp = $this->opCodeList[$opcode];
+        $data = $this->getAddrOrDataWithAdditionalCycle($ocp->mode);
+        $this->execInstruction($ocp->baseName, $data->addrOrData, $ocp->mode);
+        return $ocp->cycle + $data->additionalCycle + ($this->hasBranched ? 1 : 0);
+	 */
+
+	opcode := cpu.fetchByte()
 
 	return 0 //dummy
 }
