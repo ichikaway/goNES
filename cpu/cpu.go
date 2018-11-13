@@ -55,25 +55,17 @@ func (cpu *Cpu) write(addr int, data byte) {
 	cpu.CpuBus.WriteByCpu(addr, data)
 }
 
+
+
+
 func (cpu *Cpu) processNmi() {
-	/*
-	    $this->interrupts->deassertNmi();
-        $this->registers->p->break_mode = false;
-        $this->push(($this->registers->pc >> 8) & 0xFF);
-        $this->push($this->registers->pc & 0xFF);
-        $this->pushStatus();
-        $this->registers->p->interrupt = true;
-        $this->registers->pc = $this->read(0xFFFA, "Word");
-	 */
 	cpu.Interrupts.DeassertNmi()
 	cpu.Registers.P.Break_mode = false
 	cpu.push(byte(cpu.Registers.PC >> 8))
 	cpu.push(byte(cpu.Registers.PC))
 	cpu.pushStatus()
 	cpu.Registers.P.Interrupt = true
-	//todo
-	//cpu.Registers.PC =
-
+	cpu.Registers.PC = cpu.CpuBus.ReadWord(0xFFFA)
 }
 
 func (cpu *Cpu) Run() int {
