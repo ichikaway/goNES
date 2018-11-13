@@ -39,3 +39,11 @@ func GetDefaultRegisters() Registers {
 		},
 	}
 }
+
+func (registers *Registers) IncrementPc() {
+	registers.PC++
+}
+
+func (registers Registers) GetPc() uint16 {
+	return registers.PC
+}
