@@ -57,6 +57,18 @@ func (cpu *Cpu) write(addr int, data byte) {
 
 
 
+func (cpu *Cpu) processIrq() {
+	if cpu.Registers.P.Interrupt {
+		return
+	}
+	cpu.Interrupts.DeassertIrq()
+	cpu.Registers.P.Break_mode = false
+	cpu.push(byte(cpu.Registers.PC >> 8))
+	cpu.push(byte(cpu.Registers.PC))
+	cpu.pushStatus()
+	cpu.Registers.P.Interrupt = true
+	cpu.Registers.PC = cpu.CpuBus.ReadWord(0xFFFE)
+}
 
 func (cpu *Cpu) processNmi() {
 	cpu.Interrupts.DeassertNmi()
@@ -71,6 +83,9 @@ func (cpu *Cpu) processNmi() {
 func (cpu *Cpu) Run() int {
 	if cpu.Interrupts.IsNmiAssert() {
 		cpu.processNmi()
+	}
+	if cpu.Interrupts.IsIrqAssert() {
+		cpu.processIrq()
 	}
 
 	//todo
