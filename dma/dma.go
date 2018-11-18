@@ -9,7 +9,7 @@ type Dma struct {
 	Ram          bus.Ram
 	Ppu          ppu.Ppu
 	isProcessing bool
-	RamAddr      int
+	Register     byte
 }
 
 func NewDma(ram bus.Ram, ppu ppu.Ppu) Dma {
@@ -17,7 +17,7 @@ func NewDma(ram bus.Ram, ppu ppu.Ppu) Dma {
 		Ram:          ram,
 		Ppu:          ppu,
 		isProcessing: false,
-		RamAddr:      0x0000,
+		Register:     0x0000,
 	}
 	return dma
 }
@@ -30,13 +30,15 @@ func (this *Dma) RunDma() {
 	if !this.isProcessing {
 		return
 	}
-	for i := 0; i < 0x100; i = (i + 1) | 0 {
-		this.Ppu.TransferSprite(i, this.Ram.Read(this.RamAddr+i))
+
+	addr := uint16(this.Register) << 8
+	for i := uint16(0x0000); i < 0x100; i++  {
+		this.Ppu.TransferSprite(i, this.Ram.Read(addr+i))
 	}
 	this.isProcessing = false;
 }
 
-func (dma *Dma) Write(data int) {
-	dma.RamAddr = data << 8
+func (dma *Dma) Write(data byte) {
+	dma.Register = data
 	dma.isProcessing = true
 }

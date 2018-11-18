@@ -46,12 +46,12 @@ func (cpu *Cpu) pushStatus() {
 }
 
 func (cpu *Cpu) push(data byte) {
-	addr := 0x0100 | int16(cpu.Registers.SP&0xFF)
-	cpu.write(int(addr), data)
+	addr := uint16(0x0100 | uint16(cpu.Registers.SP&0xFF))
+	cpu.write(addr, data)
 	cpu.Registers.SP--
 }
 
-func (cpu *Cpu) write(addr int, data byte) {
+func (cpu *Cpu) write(addr uint16, data byte) {
 	cpu.CpuBus.WriteByCpu(addr, data)
 }
 

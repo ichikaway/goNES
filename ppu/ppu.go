@@ -13,8 +13,8 @@ type Ppu struct {
 	Line            int
 	IsValidVramAddr bool
 	IsLowerVramAddr bool
-	SpriteRamAddr   int
-	VramAddr        int
+	SpriteRamAddr   uint16
+	VramAddr        uint16
 	Vram            bus.Ram
 	VramReadBuf     int
 	SpriteRam       bus.Ram
@@ -59,7 +59,7 @@ func NewPpu(ppubus bus.PpuBus, interrupts cpu_interrupts.Interrupts, isHrizontal
 	return ppu
 }
 
-func (this *Ppu)TransferSprite(index int, data byte) {
+func (this *Ppu)TransferSprite(index uint16, data byte) {
 	// The DMA transfer will begin at the current OAM write address.
 	// It is common practice to initialize it to 0 with a write to PPU 0x2003 before the DMA transfer.
 	// Different starting addresses can be used for a simple OAM cycling technique
@@ -71,12 +71,12 @@ func (this *Ppu)TransferSprite(index int, data byte) {
 	this.SpriteRam.Write(addr % 0x100, data) //256以上のアドレスに入れさせないために256の剰余を求める
 }
 
-func (this Ppu) Read(addr int) byte {
+func (this Ppu) Read(addr uint16) byte {
 	//todo
 	return 0x0000
 }
 
-func (this *Ppu) Write(addr int, data byte) {
+func (this *Ppu) Write(addr uint16, data byte) {
 	//todo
 }
 
