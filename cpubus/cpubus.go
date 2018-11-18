@@ -78,7 +78,7 @@ func (this *CpuBus) WriteByCpu(addr uint16, data byte) {
 	case 0x2000 <= addr && addr <= 0x3FFF:
 		this.Ppu.Write(addr-0x2000, data)
 	case addr == 0x4014:
-		this.Dma.Write(int(data))
+		this.Dma.Write(data)
 	case addr == 0x4016:
 		// todo  0x4016 => self.keypad.write(data),
 	case addr == 0x4017:
