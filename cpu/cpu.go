@@ -13,6 +13,7 @@ type Cpu struct {
 	Interrupts  cpu_interrupts.Interrupts
 	Registers   registers.Registers
 	HasBranched bool
+	Opcode      map[byte]Opcode
 }
 
 func NewCpu(cpubus cpubus.CpuBus, interrupts cpu_interrupts.Interrupts) Cpu {
@@ -22,6 +23,7 @@ func NewCpu(cpubus cpubus.CpuBus, interrupts cpu_interrupts.Interrupts) Cpu {
 		Interrupts:  interrupts,
 		Registers:   registers.GetDefaultRegisters(),
 		HasBranched: false,
+		Opcode:      getOpCodes(),
 	}
 }
 
@@ -100,6 +102,6 @@ func (cpu *Cpu) Run() int {
 	 */
 
 	opcode := cpu.fetchByte()
-
+	opc := cpu.Opcode[opcode]
 	return 0 //dummy
 }
