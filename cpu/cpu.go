@@ -102,7 +102,29 @@ func (cpu *Cpu) getAddrOrDataWithAdditionalCycle(mode int) (uint16, int){
 		return base + cpu.Registers.GetPc() - 256, cycle
 	case ZeroPage:
 		return uint16(cpu.fetchByte()), 0
-		
+	case ZeroPageX:
+		addr := uint16(cpu.fetchByte())
+		return (addr + uint16(cpu.Registers.X)) & 0xFF, 0
+	case ZeroPageY:
+		addr := uint16(cpu.fetchByte())
+		return (addr + uint16(cpu.Registers.Y)) & 0xFF, 0
+	case Absolute:
+		return cpu.fetchWord(), 0
+	case AbsoluteX:
+		addr := cpu.fetchWord()
+		cycle := 0
+		if (addr & 0xFF00) != ((addr + uint16(cpu.Registers.X)) & 0xFF00) {
+			cycle = 1
+		}
+		return (addr + uint16(cpu.Registers.X)) & 0xFFFF, cycle
+	case AbsoluteY:
+		addr := cpu.fetchWord()
+		cycle := 0
+		if (addr & 0xFF00) != ((addr + uint16(cpu.Registers.Y)) & 0xFF00) {
+			cycle = 1
+		}
+		return (addr + uint16(cpu.Registers.Y)) & 0xFFFF, cycle
+
 	}
 	panic("no match Addressing Mode")
 }
