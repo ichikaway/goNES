@@ -82,14 +82,14 @@ func (cpu *Cpu) processNmi() {
 	cpu.Registers.PC = cpu.CpuBus.ReadWord(0xFFFA)
 }
 
-func (cpu *Cpu) getAddrOrDataWithAdditionalCycle(mode int) (byte, int){
+func (cpu *Cpu) getAddrOrDataWithAdditionalCycle(mode int) (uint16, int){
 	switch mode {
 	case Accumulator:
 		return 0x00, 0
 	case Implied:
 		return 0x00, 0
 	case Immediate:
-		return cpu.fetchByte(), 0
+		return uint16(cpu.fetchByte()), 0
 
 	}
 	return 0x01, 0
