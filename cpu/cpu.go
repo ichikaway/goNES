@@ -82,6 +82,18 @@ func (cpu *Cpu) processNmi() {
 	cpu.Registers.PC = cpu.CpuBus.ReadWord(0xFFFA)
 }
 
+func (cpu *Cpu) getAddrOrDataWithAdditionalCycle(mode int) (byte, int){
+	switch mode {
+	case Accumulator:
+		return 0x00, 0
+	case Implied:
+		return 0x00, 0
+	case Immediate:
+		return cpu.fetchByte(), 0
+
+	}
+	return 0x01, 0
+}
 
 
 func (cpu *Cpu) Run() int {
@@ -103,5 +115,8 @@ func (cpu *Cpu) Run() int {
 
 	opcode := cpu.fetchByte()
 	opc := cpu.Opcode[opcode]
+	//fmt.Println(opc)
+	data, additionalCycle := cpu.getAddrOrDataWithAdditionalCycle(opc.mode)
+	fmt.Println(data, additionalCycle)
 	return 0 //dummy
 }
