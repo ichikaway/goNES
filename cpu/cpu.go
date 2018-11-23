@@ -90,9 +90,21 @@ func (cpu *Cpu) getAddrOrDataWithAdditionalCycle(mode int) (uint16, int){
 		return 0x00, 0
 	case Immediate:
 		return uint16(cpu.fetchByte()), 0
-
+	case Relative:
+		base := uint16(cpu.fetchByte())
+		cycle := 0
+		if base & 0xff00 != cpu.Registers.PC & 0xff00 {
+			cycle = 1
+		}
+		if base < 0x80 {
+			return base + cpu.Registers.GetPc(), cycle
+		}
+		return base + cpu.Registers.GetPc() - 256, cycle
+	case ZeroPage:
+		return uint16(cpu.fetchByte()), 0
+		
 	}
-	return 0x01, 0
+	panic("no match Addressing Mode")
 }
 
 
