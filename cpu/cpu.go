@@ -82,6 +82,10 @@ func (cpu *Cpu) processNmi() {
 	cpu.Registers.PC = cpu.CpuBus.ReadWord(0xFFFA)
 }
 
+/**
+	CPUのアドレッシングモードの説明
+	http://pgate1.at-ninja.jp/NES_on_FPGA/nes_cpu.htm#addressing
+ */
 func (cpu *Cpu) getAddrOrDataWithAdditionalCycle(mode int) (uint16, int){
 	switch mode {
 	case Accumulator:
@@ -124,9 +128,31 @@ func (cpu *Cpu) getAddrOrDataWithAdditionalCycle(mode int) (uint16, int){
 			cycle = 1
 		}
 		return (addr + uint16(cpu.Registers.Y)) & 0xFFFF, cycle
-
+	case PreIndexedIndirect:
+		baseAddr := uint16(cpu.fetchByte() + cpu.Registers.X) & 0xFF
+		addr := (uint16(cpu.CpuBus.ReadByCpu(baseAddr)) + uint16(cpu.CpuBus.ReadByCpu(baseAddr+1)) & 0xFF) << 8
+		cycle := 0
+		if (addr & 0xFF00) != (baseAddr & 0xFF00) {
+			cycle = 1
+		}
+		return addr & 0xFFFF, cycle
+	case PostIndexedIndirect:
+		data := uint16(cpu.fetchByte())
+		baseAddr := cpu.CpuBus.ReadByCpu(data) + (cpu.CpuBus.ReadByCpu(data + 1) & 0x00FF)
+		addr := uint16(baseAddr + cpu.Registers.Y)
+		cycle := 0
+		if (addr & 0xFF00) != (uint16(baseAddr) & 0xFF00) {
+			cycle = 1
+		}
+		return addr & 0xFFFF, cycle
+	case IndirectAbsolute:
+		addr := cpu.fetchWord()
+		upper := uint16(cpu.CpuBus.ReadByCpu((addr & 0xFF00) | uint16(((addr & 0xFF) + 1) & 0xFF)))
+		addr2 := uint16(cpu.CpuBus.ReadByCpu(addr)) + (upper << 8)
+		return addr2 & 0xFFFF, 0
+	default:
+		panic("no match Addressing Mode")
 	}
-	panic("no match Addressing Mode")
 }
 
 
