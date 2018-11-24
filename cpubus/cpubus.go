@@ -23,8 +23,17 @@ func (this CpuBus) ReadWord(addr uint16) uint16 {
 		(upper << 8 | lower) as u16
 	}
 	 */
-	lower := this.ReadByCpu(addr)
-	upper := this.ReadByCpu(addr + 1)
+	lower := uint16(this.ReadByCpu(addr))
+	upper := uint16(this.ReadByCpu(addr + 1))
+
+	// 下記のようにupper、lowerをuint16に変換せずbyte型のまま8bitシフトさせると
+	// 10000000が00000000になってしまうため事前にuint16にしておかないといけない
+	//lower := this.ReadByCpu(addr)
+	//upper := this.ReadByCpu(addr + 1)
+	//fmt.Printf("%b\n",lower)
+	//fmt.Printf("%b\n",upper)
+	//fmt.Printf("%b\n",upper << 8)
+	//fmt.Printf("%b\n", upper << 8 | lower)
 	return uint16(upper << 8 | lower)
 }
 
