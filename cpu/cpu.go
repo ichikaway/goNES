@@ -138,10 +138,10 @@ func (cpu *Cpu) getAddrOrDataWithAdditionalCycle(mode int) (uint16, int){
 		return addr & 0xFFFF, cycle
 	case PostIndexedIndirect:
 		data := uint16(cpu.fetchByte())
-		baseAddr := cpu.CpuBus.ReadByCpu(data) + (cpu.CpuBus.ReadByCpu(data + 1) & 0x00FF)
-		addr := uint16(baseAddr + cpu.Registers.Y)
+		baseAddr := uint16(cpu.CpuBus.ReadByCpu(data)) + uint16(cpu.CpuBus.ReadByCpu(data + 1)) & 0x00FF
+		addr := baseAddr + uint16(cpu.Registers.Y)
 		cycle := 0
-		if (addr & 0xFF00) != (uint16(baseAddr) & 0xFF00) {
+		if (addr & 0xFF00) != (baseAddr & 0xFF00) {
 			cycle = 1
 		}
 		return addr & 0xFFFF, cycle
@@ -175,7 +175,7 @@ func (cpu *Cpu) Run() int {
 
 	opcode := cpu.fetchByte()
 	opc := cpu.Opcode[opcode]
-	//fmt.Println(opc)
+	fmt.Println(opc)
 	data, additionalCycle := cpu.getAddrOrDataWithAdditionalCycle(opc.mode)
 	fmt.Println(data, additionalCycle)
 	return 0 //dummy
