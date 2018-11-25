@@ -165,14 +165,9 @@ func (this *Cpu) execInstruction(opecode int, data uint16, mode int) {
 		} else {
 			this.Registers.A = this.CpuBus.ReadByCpu(data)
 		}
-		this.Registers.P.Negative = false
-		if (this.Registers.A & 0x80) == 0x80 {
-			this.Registers.P.Negative = true
-		}
-		this.Registers.P.Zero = false
-		if this.Registers.A == 0 {
-			this.Registers.P.Zero = true
-		}
+		this.Registers.P.Negative = registers.UpdateNegativeBy(this.Registers.A)
+		this.Registers.P.Zero = registers.UpdateZeroBy(this.Registers.A)
+
 	}
 
 }

@@ -47,3 +47,17 @@ func (registers *Registers) IncrementPc() {
 func (registers Registers) GetPc() uint16 {
 	return registers.PC
 }
+
+func UpdateNegativeBy(data byte) bool {
+	if (data & 0x80) == 0x80 {
+		return true
+	}
+	return false
+}
+
+func UpdateZeroBy(data byte) bool {
+	if data == 0 {
+		return true
+	}
+	return false
+}
