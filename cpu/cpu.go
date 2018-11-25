@@ -155,6 +155,27 @@ func (cpu *Cpu) getAddrOrDataWithAdditionalCycle(mode int) (uint16, int){
 	}
 }
 
+func (this *Cpu) execInstruction(opecode int, data uint16, mode int) {
+	this.HasBranched = false
+
+	switch opecode {
+	case LDA:
+		if mode == Immediate {
+			this.Registers.A = uint8(data)
+		} else {
+			this.Registers.A = this.CpuBus.ReadByCpu(data)
+		}
+		this.Registers.P.Negative = false
+		if (this.Registers.A & 0x80) == 0x80 {
+			this.Registers.P.Negative = true
+		}
+		this.Registers.P.Zero = false
+		if this.Registers.A == 0 {
+			this.Registers.P.Zero = true
+		}
+	}
+
+}
 
 func (cpu *Cpu) Run() int {
 	if cpu.Interrupts.IsNmiAssert() {
@@ -164,19 +185,18 @@ func (cpu *Cpu) Run() int {
 		cpu.processIrq()
 	}
 
-	//todo
-	/*
-	    $opcode = $this->fetch($this->registers->pc, 'Byte');
-        $ocp = $this->opCodeList[$opcode];
-        $data = $this->getAddrOrDataWithAdditionalCycle($ocp->mode);
-        $this->execInstruction($ocp->baseName, $data->addrOrData, $ocp->mode);
-        return $ocp->cycle + $data->additionalCycle + ($this->hasBranched ? 1 : 0);
-	 */
-
 	opcode := cpu.fetchByte()
 	opc := cpu.Opcode[opcode]
 	fmt.Println(opc)
 	data, additionalCycle := cpu.getAddrOrDataWithAdditionalCycle(opc.mode)
 	fmt.Println(data, additionalCycle)
-	return 0 //dummy
+
+	cpu.execInstruction(opc.name, data, opc.mode)
+
+	cycle := opc.cycle + additionalCycle
+	if cpu.HasBranched {
+		cycle++
+	}
+
+	return cycle
 }
