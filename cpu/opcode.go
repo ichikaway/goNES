@@ -3,7 +3,7 @@ package cpu
 type Opcode struct {
 	name  int
 	mode  int
-	cycle byte
+	cycle int
 }
 
 const (
@@ -90,7 +90,7 @@ const (
 )
 
 func getOpCodes() map[byte]Opcode {
-	cycles := []byte{
+	cycles := []int {
 		7, 6, 2, 8, 3, 3, 5, 5, 3, 2, 2, 2, 4, 4, 6, 6,
 		2, 5, 2, 8, 4, 4, 6, 6, 2, 4, 2, 7, 4, 4, 6, 7,
 		6, 6, 2, 8, 3, 3, 5, 5, 4, 2, 2, 2, 4, 4, 6, 6,
