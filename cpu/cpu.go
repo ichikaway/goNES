@@ -160,14 +160,13 @@ func (this *Cpu) execInstruction(opecode int, data uint16, mode int) {
 
 	switch opecode {
 	case LDA:
+		val := this.CpuBus.ReadByCpu(data)
 		if mode == Immediate {
-			this.Registers.A = uint8(data)
-		} else {
-			this.Registers.A = this.CpuBus.ReadByCpu(data)
+			val = uint8(data)
 		}
-		this.Registers.P.Negative = registers.UpdateNegativeBy(this.Registers.A)
-		this.Registers.P.Zero = registers.UpdateZeroBy(this.Registers.A)
-
+		this.Registers.A = val
+		this.Registers.P.Negative = registers.UpdateNegativeBy(val)
+		this.Registers.P.Zero = registers.UpdateZeroBy(val)
 	}
 
 }
