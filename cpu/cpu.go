@@ -183,6 +183,13 @@ func (this *Cpu) execInstruction(opecode int, data uint16, mode int) {
 		this.Registers.Y = val
 		this.Registers.P.Negative = registers.UpdateNegativeBy(val)
 		this.Registers.P.Zero = registers.UpdateZeroBy(val)
+	case STA:
+		this.write(data, this.Registers.A)
+	case STX:
+		this.write(data, this.Registers.X)
+	case STY:
+		this.write(data, this.Registers.Y)
+
 	}
 
 }
