@@ -216,6 +216,27 @@ func (this *Cpu) execInstruction(opecode int, data uint16, mode int) {
 		this.Registers.A = val
 		this.Registers.P.Negative = registers.UpdateNegativeBy(val)
 		this.Registers.P.Zero = registers.UpdateZeroBy(val)
+	case ADC:
+		val := uint8(data)
+		if mode != Immediate {
+			val = this.CpuBus.ReadByCpu(data)
+		}
+		computed := val + this.Registers.A + util.Bool2Uint8(this.Registers.P.Carry)
+		registerA := this.Registers.A
+
+		this.Registers.P.Negative = registers.UpdateNegativeBy(computed)
+		this.Registers.P.Zero = registers.UpdateZeroBy(computed)
+		this.Registers.A = computed
+
+		this.Registers.P.Carry = false
+		if computed > 0xFF {
+			this.Registers.P.Carry = true
+		}
+
+		this.Registers.P.Overflow = false
+		if ((registerA ^ val) & 0x80) == 0 && ((registerA ^ computed) & 0x80) != 0 {
+			this.Registers.P.Overflow = true
+		}
 	}
 
 }
