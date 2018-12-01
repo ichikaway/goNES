@@ -237,6 +237,15 @@ func (this *Cpu) execInstruction(opecode int, data uint16, mode int) {
 		if ((registerA ^ val) & 0x80) == 0 && ((registerA ^ computed) & 0x80) != 0 {
 			this.Registers.P.Overflow = true
 		}
+	case AND:
+		val := uint8(data)
+		if mode != Immediate {
+			val = this.CpuBus.ReadByCpu(data)
+		}
+		computed := this.Registers.A & val
+		this.Registers.P.Negative = registers.UpdateNegativeBy(computed)
+		this.Registers.P.Zero = registers.UpdateZeroBy(computed)
+		this.Registers.A = computed
 	}
 
 }
