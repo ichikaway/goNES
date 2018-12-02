@@ -274,7 +274,9 @@ func (this *Cpu) execInstruction(opecode int, data uint16, mode int) {
 	case CMP:
 		this.compare(data, mode, this.Registers.A)
 	case CPX:
-
+		this.compare(data, mode, this.Registers.X)
+	case CPY:
+		this.compare(data, mode, this.Registers.Y)
 	}
 
 }
