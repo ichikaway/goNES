@@ -292,6 +292,30 @@ func (this *Cpu) execInstruction(opecode int, data uint16, mode int) {
 		this.Registers.Y = uint8(val)
 		this.Registers.P.Negative = registers.UpdateNegativeBy(uint8(val))
 		this.Registers.P.Zero = registers.UpdateZeroBy(uint8(val))
+	case EOR:
+		val := uint8(data)
+		if mode != Immediate {
+			val = this.CpuBus.ReadByCpu(data)
+		}
+		computed := this.Registers.X ^ val
+		this.Registers.P.Negative = registers.UpdateNegativeBy(computed)
+		this.Registers.P.Zero = registers.UpdateZeroBy(computed)
+		this.Registers.A = computed
+	case INC:
+		val := this.CpuBus.ReadByCpu(data) + 1
+		this.Registers.P.Negative = registers.UpdateNegativeBy(val)
+		this.Registers.P.Zero = registers.UpdateZeroBy(val)
+		this.write(data, val)
+	case INX:
+		val := this.Registers.X + 1
+		this.Registers.X = val
+		this.Registers.P.Negative = registers.UpdateNegativeBy(val)
+		this.Registers.P.Zero = registers.UpdateZeroBy(val)
+	case INY:
+		val := this.Registers.Y + 1
+		this.Registers.Y = val
+		this.Registers.P.Negative = registers.UpdateNegativeBy(val)
+		this.Registers.P.Zero = registers.UpdateZeroBy(val)
 	}
 
 }
