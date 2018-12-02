@@ -272,16 +272,22 @@ func (this *Cpu) execInstruction(opecode int, data uint16, mode int) {
 		this.Registers.P.Zero = registers.UpdateZeroBy(val & acc)
 		this.Registers.P.Overflow = (val & 0x40) == 0x40
 	case CMP:
+		this.compare(data, mode, this.Registers.A)
+	case CPX:
+
+	}
+
+}
+
+func (this *Cpu) compare(data uint16, mode int, registerVal byte) {
 		val := uint8(data)
 		if mode != Immediate {
 			val = this.CpuBus.ReadByCpu(data)
 		}
-		compared := int16(this.Registers.A) - int16(val)
+		compared := int16(registerVal) - int16(val)
 		this.Registers.P.Carry = compared >= 0
 		this.Registers.P.Negative = registers.UpdateNegativeBy(uint8(compared))
 		this.Registers.P.Zero = registers.UpdateZeroBy(uint8(compared))
-	}
-
 }
 
 func (cpu *Cpu) Run() int {
