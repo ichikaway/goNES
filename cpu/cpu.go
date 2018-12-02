@@ -277,6 +277,21 @@ func (this *Cpu) execInstruction(opecode int, data uint16, mode int) {
 		this.compare(data, mode, this.Registers.X)
 	case CPY:
 		this.compare(data, mode, this.Registers.Y)
+	case DEC:
+		val := int8(this.CpuBus.ReadByCpu(data)) -1
+		this.Registers.P.Negative = registers.UpdateNegativeBy(uint8(val))
+		this.Registers.P.Zero = registers.UpdateZeroBy(uint8(val))
+		this.write(data, uint8(val))
+	case DEX:
+		val := int8(this.Registers.X) -1
+		this.Registers.X = uint8(val)
+		this.Registers.P.Negative = registers.UpdateNegativeBy(uint8(val))
+		this.Registers.P.Zero = registers.UpdateZeroBy(uint8(val))
+	case DEY:
+		val := int8(this.Registers.Y) -1
+		this.Registers.Y = uint8(val)
+		this.Registers.P.Negative = registers.UpdateNegativeBy(uint8(val))
+		this.Registers.P.Zero = registers.UpdateZeroBy(uint8(val))
 	}
 
 }
