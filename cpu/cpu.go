@@ -343,8 +343,65 @@ func (this *Cpu) execInstruction(opecode int, data uint16, mode int) {
 		this.Registers.P.Negative = registers.UpdateNegativeBy(computed)
 		this.Registers.P.Zero = registers.UpdateZeroBy(computed)
 		this.Registers.A = computed
+	case ROL:
+		if mode == Accumulator {
+			acc := this.Registers.A
+			shifted := rotateToLeft(this.Registers.P.Carry, acc)
+
+			this.Registers.P.Carry = (acc & 0x80) == 0x80
+			this.Registers.P.Negative = registers.UpdateNegativeBy(shifted)
+			this.Registers.P.Zero = registers.UpdateZeroBy(shifted)
+			this.Registers.A = shifted
+		} else {
+			fetched := this.CpuBus.ReadByCpu(data)
+			shifted := rotateToLeft(this.Registers.P.Carry, fetched)
+
+			this.Registers.P.Carry = (fetched & 0x80) == 0x80
+			this.Registers.P.Negative = registers.UpdateNegativeBy(shifted)
+			this.Registers.P.Zero = registers.UpdateZeroBy(shifted)
+			this.write(data, shifted)
+		}
+	case ROR:
+		if mode == Accumulator {
+			acc := this.Registers.A
+			shifted := rotateToRight(this.Registers.P.Carry, acc)
+
+			this.Registers.P.Carry = (acc & 0x01) == 0x01
+			this.Registers.P.Negative = registers.UpdateNegativeBy(shifted)
+			this.Registers.P.Zero = registers.UpdateZeroBy(shifted)
+			this.Registers.A = shifted
+		} else {
+			fetched := this.CpuBus.ReadByCpu(data)
+			shifted := rotateToRight(this.Registers.P.Carry, fetched)
+
+			this.Registers.P.Carry = (fetched & 0x01) == 0x01
+			this.Registers.P.Negative = registers.UpdateNegativeBy(shifted)
+			this.Registers.P.Zero = registers.UpdateZeroBy(shifted)
+			this.write(data, shifted)
+		}
+
 	}
 
+}
+
+func rotateToRight(carry bool, data uint8) uint8 {
+	//((v >> 1) as Data | if registers.get_carry() { 0x80 } else { 0x00 }) as Data
+	v := data >> 1
+	c := uint8(0x00)
+	if carry {
+		c = 0x08
+	}
+	return v | c
+}
+
+func rotateToLeft(carry bool, data uint8) uint8 {
+	//((v << 1) as Data | if registers.get_carry() { 0x01 } else { 0x00 }) as Data
+	v := data << 1
+	c := uint8(0x00)
+	if carry {
+		c = 0x01
+	}
+	return v | c
 }
 
 func (this *Cpu) compare(data uint16, mode int, registerVal byte) {
