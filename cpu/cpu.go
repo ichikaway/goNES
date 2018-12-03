@@ -316,6 +316,33 @@ func (this *Cpu) execInstruction(opecode int, data uint16, mode int) {
 		this.Registers.Y = val
 		this.Registers.P.Negative = registers.UpdateNegativeBy(val)
 		this.Registers.P.Zero = registers.UpdateZeroBy(val)
+	case LSR:
+		if mode == Accumulator {
+			acc := this.Registers.A
+			shifted := uint8(acc >> 1)
+
+			this.Registers.P.Carry = (acc & 0x01) == 0x01
+			this.Registers.P.Negative = registers.UpdateNegativeBy(shifted)
+			this.Registers.P.Zero = registers.UpdateZeroBy(shifted)
+			this.Registers.A = shifted
+		} else {
+			fetched := this.CpuBus.ReadByCpu(data)
+			shifted := uint8(fetched >> 1)
+
+			this.Registers.P.Carry = (fetched & 0x01) == 0x01
+			this.Registers.P.Negative = registers.UpdateNegativeBy(shifted)
+			this.Registers.P.Zero = registers.UpdateZeroBy(shifted)
+			this.write(data, shifted)
+		}
+	case ORA:
+		val := uint8(data)
+		if mode != Immediate {
+			val = this.CpuBus.ReadByCpu(data)
+		}
+		computed := this.Registers.A | val
+		this.Registers.P.Negative = registers.UpdateNegativeBy(computed)
+		this.Registers.P.Zero = registers.UpdateZeroBy(computed)
+		this.Registers.A = computed
 	}
 
 }
