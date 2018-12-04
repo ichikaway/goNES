@@ -379,7 +379,27 @@ func (this *Cpu) execInstruction(opecode int, data uint16, mode int) {
 			this.Registers.P.Zero = registers.UpdateZeroBy(shifted)
 			this.write(data, shifted)
 		}
+	case SBC:
+		val := uint8(data)
+		if mode != Immediate {
+			val = this.CpuBus.ReadByCpu(data)
+		}
+		computed := int(this.Registers.A) - int(val) - int(util.Bool2Uint8(!this.Registers.P.Carry))
+		registerA := this.Registers.A
 
+		this.Registers.P.Negative = registers.UpdateNegativeBy(uint8(computed))
+		this.Registers.P.Zero = registers.UpdateZeroBy(uint8(computed))
+		this.Registers.A = uint8(computed)
+
+		this.Registers.P.Carry = false
+		if computed > 0 {
+			this.Registers.P.Carry = true
+		}
+
+		this.Registers.P.Overflow = false
+		if ((registerA ^ val) & 0x80) != 0 && ((registerA ^ uint8(computed)) & 0x80) != 0 {
+			this.Registers.P.Overflow = true
+		}
 	}
 
 }
