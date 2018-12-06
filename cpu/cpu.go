@@ -47,6 +47,18 @@ func (cpu *Cpu) pushStatus() {
 	cpu.push(status)
 }
 
+func (cpu Cpu) popStatus() {
+	val := cpu.pop()
+	cpu.Registers.P.Negative = val & 0x80 == 0x80
+	cpu.Registers.P.Overflow = val & 0x40 == 0x40
+	cpu.Registers.P.Reserved = val & 0x20 == 0x20
+	cpu.Registers.P.Break_mode = val & 0x10 == 0x10
+	cpu.Registers.P.Decimal_mode = val & 0x08 == 0x08
+	cpu.Registers.P.Interrupt = val & 0x04 == 0x04
+	cpu.Registers.P.Zero = val & 0x02 == 0x02
+	cpu.Registers.P.Carry = val & 0x01 == 0x01
+}
+
 func (cpu *Cpu) push(data byte) {
 	addr := uint16(0x0100 | uint16(cpu.Registers.SP&0xFF))
 	cpu.write(addr, data)
@@ -420,7 +432,9 @@ func (this *Cpu) execInstruction(opecode int, data uint16, mode int) {
 		this.Registers.A = val
 		this.Registers.P.Negative = registers.UpdateNegativeBy(val)
 		this.Registers.P.Zero = registers.UpdateZeroBy(val)
-
+	case PLP:
+		this.Registers.P.Reserved = true
+		this.popStatus()
 	}
 
 }
