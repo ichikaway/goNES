@@ -172,7 +172,7 @@ func (this *Cpu) execInstruction(opecode int, data uint16, mode int) {
 	case LDA:
 		val := uint8(data)
 		if mode != Immediate {
-			val = this.CpuBus.ReadByCpu(data)
+			val = this.read(data)
 		}
 		this.Registers.A = val
 		this.Registers.P.Negative = registers.UpdateNegativeBy(val)
@@ -180,7 +180,7 @@ func (this *Cpu) execInstruction(opecode int, data uint16, mode int) {
 	case LDX:
 		val := uint8(data)
 		if mode != Immediate {
-			val = this.CpuBus.ReadByCpu(data)
+			val = this.read(data)
 		}
 		this.Registers.X = val
 		this.Registers.P.Negative = registers.UpdateNegativeBy(val)
@@ -188,7 +188,7 @@ func (this *Cpu) execInstruction(opecode int, data uint16, mode int) {
 	case LDY:
 		val := uint8(data)
 		if mode != Immediate {
-			val = this.CpuBus.ReadByCpu(data)
+			val = this.read(data)
 		}
 		this.Registers.Y = val
 		this.Registers.P.Negative = registers.UpdateNegativeBy(val)
@@ -229,7 +229,7 @@ func (this *Cpu) execInstruction(opecode int, data uint16, mode int) {
 	case ADC:
 		val := uint8(data)
 		if mode != Immediate {
-			val = this.CpuBus.ReadByCpu(data)
+			val = this.read(data)
 		}
 		computed := val + this.Registers.A + util.Bool2Uint8(this.Registers.P.Carry)
 		registerA := this.Registers.A
@@ -250,7 +250,7 @@ func (this *Cpu) execInstruction(opecode int, data uint16, mode int) {
 	case AND:
 		val := uint8(data)
 		if mode != Immediate {
-			val = this.CpuBus.ReadByCpu(data)
+			val = this.read(data)
 		}
 		computed := this.Registers.A & val
 		this.Registers.P.Negative = registers.UpdateNegativeBy(computed)
@@ -266,7 +266,7 @@ func (this *Cpu) execInstruction(opecode int, data uint16, mode int) {
 			this.Registers.P.Zero = registers.UpdateZeroBy(shifted)
 			this.Registers.A = shifted
 		} else {
-			fetched := this.CpuBus.ReadByCpu(data)
+			fetched := this.read(data)
 			shifted := uint8(fetched << 1)
 
 			this.Registers.P.Carry = (fetched & 0x80) == 0x80
@@ -275,7 +275,7 @@ func (this *Cpu) execInstruction(opecode int, data uint16, mode int) {
 			this.write(data, shifted)
 		}
 	case BIT:
-		val := this.CpuBus.ReadByCpu(data)
+		val := this.read(data)
 		acc := this.Registers.A
 
 		this.Registers.P.Negative = registers.UpdateNegativeBy(val)
@@ -288,7 +288,7 @@ func (this *Cpu) execInstruction(opecode int, data uint16, mode int) {
 	case CPY:
 		this.compare(data, mode, this.Registers.Y)
 	case DEC:
-		val := int8(this.CpuBus.ReadByCpu(data)) -1
+		val := int8(this.read(data)) -1
 		this.Registers.P.Negative = registers.UpdateNegativeBy(uint8(val))
 		this.Registers.P.Zero = registers.UpdateZeroBy(uint8(val))
 		this.write(data, uint8(val))
@@ -305,14 +305,14 @@ func (this *Cpu) execInstruction(opecode int, data uint16, mode int) {
 	case EOR:
 		val := uint8(data)
 		if mode != Immediate {
-			val = this.CpuBus.ReadByCpu(data)
+			val = this.read(data)
 		}
 		computed := this.Registers.X ^ val
 		this.Registers.P.Negative = registers.UpdateNegativeBy(computed)
 		this.Registers.P.Zero = registers.UpdateZeroBy(computed)
 		this.Registers.A = computed
 	case INC:
-		val := this.CpuBus.ReadByCpu(data) + 1
+		val := this.read(data) + 1
 		this.Registers.P.Negative = registers.UpdateNegativeBy(val)
 		this.Registers.P.Zero = registers.UpdateZeroBy(val)
 		this.write(data, val)
@@ -336,7 +336,7 @@ func (this *Cpu) execInstruction(opecode int, data uint16, mode int) {
 			this.Registers.P.Zero = registers.UpdateZeroBy(shifted)
 			this.Registers.A = shifted
 		} else {
-			fetched := this.CpuBus.ReadByCpu(data)
+			fetched := this.read(data)
 			shifted := uint8(fetched >> 1)
 
 			this.Registers.P.Carry = (fetched & 0x01) == 0x01
@@ -347,7 +347,7 @@ func (this *Cpu) execInstruction(opecode int, data uint16, mode int) {
 	case ORA:
 		val := uint8(data)
 		if mode != Immediate {
-			val = this.CpuBus.ReadByCpu(data)
+			val = this.read(data)
 		}
 		computed := this.Registers.A | val
 		this.Registers.P.Negative = registers.UpdateNegativeBy(computed)
@@ -363,7 +363,7 @@ func (this *Cpu) execInstruction(opecode int, data uint16, mode int) {
 			this.Registers.P.Zero = registers.UpdateZeroBy(shifted)
 			this.Registers.A = shifted
 		} else {
-			fetched := this.CpuBus.ReadByCpu(data)
+			fetched := this.read(data)
 			shifted := rotateToLeft(this.Registers.P.Carry, fetched)
 
 			this.Registers.P.Carry = (fetched & 0x80) == 0x80
@@ -381,7 +381,7 @@ func (this *Cpu) execInstruction(opecode int, data uint16, mode int) {
 			this.Registers.P.Zero = registers.UpdateZeroBy(shifted)
 			this.Registers.A = shifted
 		} else {
-			fetched := this.CpuBus.ReadByCpu(data)
+			fetched := this.read(data)
 			shifted := rotateToRight(this.Registers.P.Carry, fetched)
 
 			this.Registers.P.Carry = (fetched & 0x01) == 0x01
@@ -392,7 +392,7 @@ func (this *Cpu) execInstruction(opecode int, data uint16, mode int) {
 	case SBC:
 		val := uint8(data)
 		if mode != Immediate {
-			val = this.CpuBus.ReadByCpu(data)
+			val = this.read(data)
 		}
 		computed := int(this.Registers.A) - int(val) - int(util.Bool2Uint8(!this.Registers.P.Carry))
 		registerA := this.Registers.A
@@ -448,7 +448,7 @@ func rotateToLeft(carry bool, data uint8) uint8 {
 func (this *Cpu) compare(data uint16, mode int, registerVal byte) {
 		val := uint8(data)
 		if mode != Immediate {
-			val = this.CpuBus.ReadByCpu(data)
+			val = this.read(data)
 		}
 		compared := int16(registerVal) - int16(val)
 		this.Registers.P.Carry = compared >= 0
