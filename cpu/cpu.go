@@ -53,6 +53,16 @@ func (cpu *Cpu) push(data byte) {
 	cpu.Registers.SP--
 }
 
+func (cpu *Cpu) pop() byte {
+	cpu.Registers.SP++
+	addr := uint16(0x0100 | uint16(cpu.Registers.SP&0xFF))
+	return cpu.read(addr)
+}
+
+func (cpu Cpu) read(addr uint16) byte {
+	return cpu.CpuBus.ReadByCpu(addr)
+}
+
 func (cpu *Cpu) write(addr uint16, data byte) {
 	cpu.CpuBus.WriteByCpu(addr, data)
 }
@@ -406,7 +416,11 @@ func (this *Cpu) execInstruction(opecode int, data uint16, mode int) {
 		this.Registers.P.Break_mode = true
 		this.pushStatus()
 	case PLA:
-		
+		val := this.pop()
+		this.Registers.A = val
+		this.Registers.P.Negative = registers.UpdateNegativeBy(val)
+		this.Registers.P.Zero = registers.UpdateZeroBy(val)
+
 	}
 
 }
