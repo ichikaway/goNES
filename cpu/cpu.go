@@ -400,6 +400,13 @@ func (this *Cpu) execInstruction(opecode int, data uint16, mode int) {
 		if ((registerA ^ val) & 0x80) != 0 && ((registerA ^ uint8(computed)) & 0x80) != 0 {
 			this.Registers.P.Overflow = true
 		}
+	case PHA:
+		this.push(this.Registers.A)
+	case PHP:
+		this.Registers.P.Break_mode = true
+		this.pushStatus()
+	case PLA:
+		
 	}
 
 }
