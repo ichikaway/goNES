@@ -491,6 +491,21 @@ func (this *Cpu) execInstruction(opecode int, data uint16, mode int) {
 		if !this.Registers.P.Overflow {
 			this.branch(data)
 		}
+	case CLD:
+		this.Registers.P.Decimal_mode = false
+	case CLC:
+		this.Registers.P.Carry = false
+	case CLI:
+		this.Registers.P.Interrupt = false
+	case CLV:
+		this.Registers.P.Overflow = false
+	case SEC:
+		this.Registers.P.Carry = true
+	case SEI:
+		this.Registers.P.Interrupt = true
+	case SED:
+		this.Registers.P.Decimal_mode = true
+
 	}
 
 }
