@@ -451,6 +451,11 @@ func (this *Cpu) execInstruction(opecode int, data uint16, mode int) {
 	case RTS:
 		this.popPc()
 		this.Registers.IncrementPc()
+	case RTI:
+		this.popStatus()
+		this.popPc()
+		this.Registers.P.Reserved = true
+		
 	}
 
 }
