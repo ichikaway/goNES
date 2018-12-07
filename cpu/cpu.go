@@ -71,6 +71,12 @@ func (cpu *Cpu) pop() byte {
 	return cpu.read(addr)
 }
 
+func (cpu *Cpu) popPc() {
+	lower := uint16(cpu.pop())
+	upper := uint16(cpu.pop())
+	cpu.Registers.PC = upper << 8 | lower
+}
+
 func (cpu Cpu) read(addr uint16) byte {
 	return cpu.CpuBus.ReadByCpu(addr)
 }
@@ -442,6 +448,9 @@ func (this *Cpu) execInstruction(opecode int, data uint16, mode int) {
 		this.push(uint8(pc >> 8))
 		this.push(uint8(pc))
 		this.Registers.PC = data
+	case RTS:
+		this.popPc()
+		this.Registers.IncrementPc()
 	}
 
 }
