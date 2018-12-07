@@ -85,6 +85,10 @@ func (cpu *Cpu) write(addr uint16, data byte) {
 	cpu.CpuBus.WriteByCpu(addr, data)
 }
 
+func (cpu *Cpu) branch(addr uint16) {
+	cpu.Registers.PC = addr
+	cpu.HasBranched = true
+}
 
 
 func (cpu *Cpu) processIrq() {
@@ -455,7 +459,38 @@ func (this *Cpu) execInstruction(opecode int, data uint16, mode int) {
 		this.popStatus()
 		this.popPc()
 		this.Registers.P.Reserved = true
-		
+	case BCC:
+		if !this.Registers.P.Carry {
+			this.branch(data)
+		}
+	case BCS:
+		if this.Registers.P.Carry {
+			this.branch(data)
+		}
+	case BEQ:
+		if this.Registers.P.Zero {
+			this.branch(data)
+		}
+	case BMI:
+		if this.Registers.P.Negative {
+			this.branch(data)
+		}
+	case BNE:
+		if !this.Registers.P.Zero {
+			this.branch(data)
+		}
+	case BPL:
+		if !this.Registers.P.Negative {
+			this.branch(data)
+		}
+	case BVS:
+		if this.Registers.P.Overflow {
+			this.branch(data)
+		}
+	case BVC:
+		if !this.Registers.P.Overflow {
+			this.branch(data)
+		}
 	}
 
 }
