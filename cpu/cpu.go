@@ -435,6 +435,13 @@ func (this *Cpu) execInstruction(opecode int, data uint16, mode int) {
 	case PLP:
 		this.Registers.P.Reserved = true
 		this.popStatus()
+	case JMP:
+		this.Registers.PC = data
+	case JSR:
+		pc := this.Registers.GetPc() - 1
+		this.push(uint8(pc >> 8))
+		this.push(uint8(pc))
+		this.Registers.PC = data
 	}
 
 }
