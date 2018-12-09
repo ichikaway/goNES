@@ -527,6 +527,8 @@ func (this *Cpu) execInstruction(opecode int, data uint16, mode int) {
 		}
 		this.Registers.DecrementPc()
 		fmt.Println("PC3: ",this.Registers.PC)
+	case NOP:
+		return
 	default:
 		panic("no instruction!")
 	}
