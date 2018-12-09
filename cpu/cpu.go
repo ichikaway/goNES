@@ -536,7 +536,20 @@ func (this *Cpu) execInstruction(opecode int, data uint16, mode int) {
 		this.Registers.X = val
 		this.Registers.P.Negative = registers.UpdateNegativeBy(val)
 		this.Registers.P.Zero = registers.UpdateZeroBy(val)
-
+	case SLO:
+		val := this.read(data)
+		this.Registers.P.Carry = (val & 0x80) == 0x80
+		val2 := (val << 1) & 0xFF
+		this.Registers.A = val2
+		this.Registers.P.Negative = registers.UpdateNegativeBy(val2)
+		this.Registers.P.Zero = registers.UpdateZeroBy(val2)
+		this.write(data, val2)
+	case RLA:
+		return
+	case SRE:
+		return
+	case RRA:
+		return
 	default:
 		panic("no instruction!")
 	}
