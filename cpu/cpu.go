@@ -529,6 +529,14 @@ func (this *Cpu) execInstruction(opecode int, data uint16, mode int) {
 		fmt.Println("PC3: ",this.Registers.PC)
 	case NOP:
 		return
+	//ここから下はunofficialな実装
+	case LAX:
+		val := this.read(data)
+		this.Registers.A = val
+		this.Registers.X = val
+		this.Registers.P.Negative = registers.UpdateNegativeBy(val)
+		this.Registers.P.Zero = registers.UpdateZeroBy(val)
+
 	default:
 		panic("no instruction!")
 	}
