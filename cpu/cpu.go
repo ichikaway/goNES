@@ -190,6 +190,11 @@ func (cpu *Cpu) getAddrOrDataWithAdditionalCycle(mode int) (uint16, int){
 func (this *Cpu) execInstruction(opecode int, data uint16, mode int) {
 	this.HasBranched = false
 
+	fmt.Println("base: ", opecode, "data:", data, "mode:", mode)
+	printOpecode(opecode)
+	printAddressingMode(mode)
+	fmt.Println("data: ", data)
+
 	switch opecode {
 	case LDA:
 		val := uint8(data)
@@ -560,6 +565,9 @@ func (this *Cpu) compare(data uint16, mode int, registerVal byte) {
 }
 
 func (cpu *Cpu) Run() int {
+	fmt.Println("------------- CPU run ---------------")
+	fmt.Println("run Pc: ", cpu.Registers.PC)
+
 	if cpu.Interrupts.IsNmiAssert() {
 		cpu.processNmi()
 	}
