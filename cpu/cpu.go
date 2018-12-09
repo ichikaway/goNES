@@ -505,7 +505,25 @@ func (this *Cpu) execInstruction(opecode int, data uint16, mode int) {
 		this.Registers.P.Interrupt = true
 	case SED:
 		this.Registers.P.Decimal_mode = true
-
+	case BRK:
+		fmt.Println("PC1: ",this.Registers.PC)
+		interrupt := this.Registers.P.Interrupt
+		this.Registers.IncrementPc()
+		fmt.Println("PC2: ",this.Registers.PC)
+		pc := this.Registers.GetPc()
+		this.push(uint8(pc >> 8))
+		this.push(uint8(pc))
+		this.Registers.P.Break_mode = true
+		this.pushStatus()
+		this.Registers.P.Interrupt = true
+		if !interrupt {
+			fetched := this.CpuBus.ReadWord(0xFFFE)
+			this.Registers.PC = fetched
+		}
+		this.Registers.DecrementPc()
+		fmt.Println("PC3: ",this.Registers.PC)
+	default:
+		panic("no instruction!")
 	}
 
 }

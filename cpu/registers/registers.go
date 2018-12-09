@@ -40,6 +40,10 @@ func GetDefaultRegisters() Registers {
 	}
 }
 
+func (registers *Registers) DecrementPc() {
+	registers.PC--
+}
+
 func (registers *Registers) IncrementPc() {
 	registers.PC++
 }
