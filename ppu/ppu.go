@@ -21,9 +21,7 @@ type Ppu struct {
 	VramReadBuf     int
 	SpriteRam       bus.Ram
 	Bus             bus.PpuBus
-
-	/** @var \Nes\Ppu\Tile[] */
-	//Background
+	Background      Background
 
 	/** @var \Nes\Ppu\SpriteWithAttribute[] */
 	//Sprites
@@ -49,7 +47,7 @@ func NewPpu(ppubus bus.PpuBus, interrupts cpu_interrupts.Interrupts, isHrizontal
 		VramReadBuf:       0,
 		SpriteRam:         bus.NewRam(0x100),
 		SpriteRamAddr:     0,
-		//Background: []
+		Background:        NewBackground(),
 		//Sprites: []
 		Bus:               ppubus,
 		Interrupts:        interrupts,
@@ -89,4 +87,10 @@ func (this *Ppu) Run(cpuCycle int) bool {
 		return false
 	}
 
+	if this.Line == 0 {
+		this.Background.Clear()
+	}
+
+
+	return false
 }
