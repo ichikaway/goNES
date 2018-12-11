@@ -7,6 +7,8 @@ import (
 
 const SPRITES_NUMBER = 0x100
 
+const CYCLES_PER_LINE = 341
+
 type Ppu struct {
 	Registers       []int
 	Cycle           int
@@ -80,3 +82,11 @@ func (this *Ppu) Write(addr uint16, data byte) {
 	//todo
 }
 
+func (this *Ppu) Run(cpuCycle int) bool {
+	cycle := this.Cycle + cpuCycle
+	if cycle < CYCLES_PER_LINE {
+		this.Cycle = cycle
+		return false
+	}
+
+}

@@ -68,8 +68,9 @@ func (nes *Nes) frame() {
 		}
 		cycle += nes.Cpu.Run()
 
+		renderingData := nes.Ppu.Run(cycle * 3);
+
 		/* todo
-		    $renderingData = $this->ppu->run($cycle * 3);
             if ($renderingData) {
                 $this->cpu->bus->keypad->fetch();
                 $this->renderer->render($renderingData);
