@@ -89,8 +89,22 @@ func (this *Ppu) Run(cpuCycle int) bool {
 
 	if this.Line == 0 {
 		this.Background.Clear()
+		this.buildSprites()
 	}
+
+	this.Cycle = cycle - CYCLES_PER_LINE
+	this.Line++
 
 
 	return false
+}
+
+func (this *Ppu) buildSprites() {
+	offset := 0x0000
+	if (this.Registers[0] & 0x08) > 0 {
+		offset = 0x1000
+	}
+
+}
+
 }
