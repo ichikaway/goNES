@@ -7,21 +7,21 @@ import (
 
 const SPRITES_NUMBER = 0x100
 
+const CYCLES_PER_LINE = 341
+
 type Ppu struct {
 	Registers       []int
 	Cycle           int
 	Line            int
 	IsValidVramAddr bool
 	IsLowerVramAddr bool
-	SpriteRamAddr   int
-	VramAddr        int
+	SpriteRamAddr   uint16
+	VramAddr        uint16
 	Vram            bus.Ram
 	VramReadBuf     int
 	SpriteRam       bus.Ram
 	Bus             bus.PpuBus
-
-	/** @var \Nes\Ppu\Tile[] */
-	//Background
+	Background      Background
 
 	/** @var \Nes\Ppu\SpriteWithAttribute[] */
 	//Sprites
@@ -47,7 +47,7 @@ func NewPpu(ppubus bus.PpuBus, interrupts cpu_interrupts.Interrupts, isHrizontal
 		VramReadBuf:       0,
 		SpriteRam:         bus.NewRam(0x100),
 		SpriteRamAddr:     0,
-		//Background: []
+		Background:        NewBackground(),
 		//Sprites: []
 		Bus:               ppubus,
 		Interrupts:        interrupts,
@@ -59,7 +59,7 @@ func NewPpu(ppubus bus.PpuBus, interrupts cpu_interrupts.Interrupts, isHrizontal
 	return ppu
 }
 
-func (this *Ppu)TransferSprite(index int, data byte) {
+func (this *Ppu)TransferSprite(index uint16, data byte) {
 	// The DMA transfer will begin at the current OAM write address.
 	// It is common practice to initialize it to 0 with a write to PPU 0x2003 before the DMA transfer.
 	// Different starting addresses can be used for a simple OAM cycling technique
@@ -71,12 +71,40 @@ func (this *Ppu)TransferSprite(index int, data byte) {
 	this.SpriteRam.Write(addr % 0x100, data) //256以上のアドレスに入れさせないために256の剰余を求める
 }
 
-func (this Ppu) Read(addr int) byte {
+func (this Ppu) Read(addr uint16) byte {
 	//todo
 	return 0x0000
 }
 
-func (this *Ppu) Write(addr int, data byte) {
+func (this *Ppu) Write(addr uint16, data byte) {
 	//todo
 }
 
+func (this *Ppu) Run(cpuCycle int) bool {
+	cycle := this.Cycle + cpuCycle
+	if cycle < CYCLES_PER_LINE {
+		this.Cycle = cycle
+		return false
+	}
+
+	if this.Line == 0 {
+		this.Background.Clear()
+		this.buildSprites()
+	}
+
+	this.Cycle = cycle - CYCLES_PER_LINE
+	this.Line++
+
+
+	return false
+}
+
+func (this *Ppu) buildSprites() {
+	offset := 0x0000
+	if (this.Registers[0] & 0x08) > 0 {
+		offset = 0x1000
+	}
+
+}
+
+}

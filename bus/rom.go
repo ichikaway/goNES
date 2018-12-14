@@ -8,7 +8,7 @@ func NewRom(data []byte) Rom {
 	return Rom{rom: data}
 }
 
-func (rom Rom) Read(addr int) byte {
+func (rom Rom) Read(addr uint16) byte {
 	return rom.rom[addr]
 }
 

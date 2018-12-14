@@ -15,7 +15,7 @@ type CpuBus struct {
 }
 
 
-func (this CpuBus) ReadWord(addr int) uint16 {
+func (this CpuBus) ReadWord(addr uint16) uint16 {
 	/**
 	fn read_word(&mut self, addr: u16) -> u16 {
 		let lower = self.read(addr) as u16;
@@ -25,7 +25,16 @@ func (this CpuBus) ReadWord(addr int) uint16 {
 	 */
 	lower := uint16(this.ReadByCpu(addr))
 	upper := uint16(this.ReadByCpu(addr + 1))
-	return upper << 8 | lower
+
+	// 下記のようにupper、lowerをuint16に変換せずbyte型のまま8bitシフトさせると
+	// 10000000が00000000になってしまうため事前にuint16にしておかないといけない
+	//lower := this.ReadByCpu(addr)
+	//upper := this.ReadByCpu(addr + 1)
+	//fmt.Printf("%b\n",lower)
+	//fmt.Printf("%b\n",upper)
+	//fmt.Printf("%b\n",upper << 8)
+	//fmt.Printf("%b\n", upper << 8 | lower)
+	return uint16(upper << 8 | lower)
 }
 
 
@@ -40,7 +49,7 @@ func NewCpuBus(ram bus.Ram, programRom bus.Rom, ppu ppu.Ppu, dma dma.Dma) CpuBus
 	return cpuBus
 }
 
-func (this CpuBus) ReadByCpu(addr int) byte {
+func (this CpuBus) ReadByCpu(addr uint16) byte {
 	switch {
 	case 0x0000 <= addr && addr <= 0x1FFF:
 		return this.Ram.Read(addr)
@@ -71,14 +80,14 @@ func (this CpuBus) ReadByCpu(addr int) byte {
 }
 
 
-func (this *CpuBus) WriteByCpu(addr int, data byte) {
+func (this *CpuBus) WriteByCpu(addr uint16, data byte) {
 	switch {
 	case 0x0000 <= addr && addr <= 0x1FFF:
 		this.Ram.Write(addr&0x07FF, data)
 	case 0x2000 <= addr && addr <= 0x3FFF:
 		this.Ppu.Write(addr-0x2000, data)
 	case addr == 0x4014:
-		this.Dma.Write(int(data))
+		this.Dma.Write(data)
 	case addr == 0x4016:
 		// todo  0x4016 => self.keypad.write(data),
 	case addr == 0x4017:

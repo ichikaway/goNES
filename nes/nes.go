@@ -37,7 +37,7 @@ func (nes *Nes) Load() {
 	nes.Ram = bus.NewRam(2048)
 	nes.characterMem = bus.NewRam(0x4000)
 	for i := 0; i < len(nes.Rom.CharacterRom); i++ {
-		nes.characterMem.Write(i, nes.Rom.CharacterRom[i])
+		nes.characterMem.Write(uint16(i), nes.Rom.CharacterRom[i])
 	}
 
 	nes.ProgramRom = bus.NewRom(nes.Rom.ProgramRom)
@@ -68,8 +68,9 @@ func (nes *Nes) frame() {
 		}
 		cycle += nes.Cpu.Run()
 
+		renderingData := nes.Ppu.Run(cycle * 3);
+
 		/* todo
-		    $renderingData = $this->ppu->run($cycle * 3);
             if ($renderingData) {
                 $this->cpu->bus->keypad->fetch();
                 $this->renderer->render($renderingData);
