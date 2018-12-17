@@ -105,6 +105,53 @@ func (this *Ppu) buildSprites() {
 		offset = 0x1000
 	}
 
+	for i := 0 ; i < SPRITES_NUMBER ; i = (i+4) | 0 {
+		y := this.SpriteRam.Read(uint16(i)) - 8
+		if y < 0 {
+			return
+		}
+		spriteId := this.SpriteRam.Read(uint16(i+1))
+		attr := this.SpriteRam.Read(uint16(i+2))
+		x := this.SpriteRam.Read(uint16(i+3))
+		sprite := this.buildSprite(spriteId, offset)
+
+	}
+	/*
+	public function buildSprites()
+	{
+	$offset = ($this->registers[0] & 0x08) ? 0x1000 : 0x0000;
+	for ($i = 0; $i < self::SPRITES_NUMBER; $i = ($i + 4) | 0) {
+	// INFO: Offset sprite Y position, because First and last 8line is not rendered.
+	$y = $this->spriteRam->read($i) - 8;
+	if ($y < 0) {
+	return;
+	}
+	$spriteId = $this->spriteRam->read($i + 1);
+	$attr = $this->spriteRam->read($i + 2);
+	$x = $this->spriteRam->read($i + 3);
+	$sprite = $this->buildSprite($spriteId, $offset);
+	$this->sprites[$i / 4] = new SpriteWithAttribute($sprite, $x, $y, $attr, $spriteId);
+	}
+	*/
 }
+
+func (this *Ppu) buildSprite(spriteId int, offset int) {
+	/*
+	public function buildSprite(int $spriteId, int $offset): array
+	{
+	$sprite = array_fill(0, 8, array_fill(0, 8, 0));
+	for ($i = 0; $i < 16; $i = ($i + 1) | 0) {
+	for ($j = 0; $j < 8; $j = ($j + 1) | 0) {
+	$addr = $spriteId * 16 + $i + $offset;
+	$ram = $this->readCharacterRAM($addr);
+	if ($ram & (0x80 >> $j)) {
+	$sprite[$i % 8][$j] += 0x01 << ~~($i / 8);
+	}
+	}
+	}
+	return $sprite;
+	}
+	}
+	*/
 
 }
