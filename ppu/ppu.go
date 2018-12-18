@@ -9,6 +9,8 @@ const SPRITES_NUMBER = 0x100
 
 const CYCLES_PER_LINE = 341
 
+type Sprite [8][8]byte
+
 type Ppu struct {
 	Registers       []int
 	Cycle           int
@@ -100,10 +102,57 @@ func (this *Ppu) Run(cpuCycle int) bool {
 }
 
 func (this *Ppu) buildSprites() {
-	offset := 0x0000
+	var offset uint16 = 0x0000
+	var sprite Sprite
+
 	if (this.Registers[0] & 0x08) > 0 {
 		offset = 0x1000
 	}
 
+	for i := 0 ; i < SPRITES_NUMBER ; i = (i+4) | 0 {
+		// INFO: Offset sprite Y position, because First and last 8line is not rendered.
+		y := this.SpriteRam.Read(uint16(i)) - 8
+		if y < 0 {
+			return
+		}
+		spriteId := this.SpriteRam.Read(uint16(i+1))
+		//attr := this.SpriteRam.Read(uint16(i+2))
+		//x := this.SpriteRam.Read(uint16(i+3))
+		sprite = this.buildSprite(spriteId, offset)
+	}
+	/*
+	public function buildSprites()
+	{
+	$offset = ($this->registers[0] & 0x08) ? 0x1000 : 0x0000;
+	for ($i = 0; $i < self::SPRITES_NUMBER; $i = ($i + 4) | 0) {
+	// INFO: Offset sprite Y position, because First and last 8line is not rendered.
+	$y = $this->spriteRam->read($i) - 8;
+	if ($y < 0) {
+	return;
+	}
+	$spriteId = $this->spriteRam->read($i + 1);
+	$attr = $this->spriteRam->read($i + 2);
+	$x = $this->spriteRam->read($i + 3);
+	$sprite = $this->buildSprite($spriteId, $offset);
+	$this->sprites[$i / 4] = new SpriteWithAttribute($sprite, $x, $y, $attr, $spriteId);
+	}
+	*/
 }
 
+func (this *Ppu) buildSprite(spriteId uint8, offset uint16) Sprite {
+	sprite := Sprite{}
+	for i := 0 ; i < 16 ; i++ {
+		for j := 0 ; j < 8 ; j++ {
+			addr := uint16(spriteId * 16) + uint16(i) + offset
+			ram := this.readCharacterRAM(addr)
+			if (ram & uint8(0x80 >> uint8(j))) != 0 {
+				sprite[i%8][j] += uint8(0x01 << uint8(i/8))
+			}
+		}
+	}
+	return sprite
+}
+
+func (this *Ppu) readCharacterRAM(addr uint16) byte {
+	return this.Bus.ReadByPpu(addr)
+}
