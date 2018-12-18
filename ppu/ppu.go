@@ -9,6 +9,8 @@ const SPRITES_NUMBER = 0x100
 
 const CYCLES_PER_LINE = 341
 
+type Sprite [8][8]byte
+
 type Ppu struct {
 	Registers       []int
 	Cycle           int
@@ -100,7 +102,9 @@ func (this *Ppu) Run(cpuCycle int) bool {
 }
 
 func (this *Ppu) buildSprites() {
-	offset := 0x0000
+	var offset uint16 = 0x0000
+	var sprite Sprite
+
 	if (this.Registers[0] & 0x08) > 0 {
 		offset = 0x1000
 	}
@@ -112,10 +116,9 @@ func (this *Ppu) buildSprites() {
 			return
 		}
 		spriteId := this.SpriteRam.Read(uint16(i+1))
-		attr := this.SpriteRam.Read(uint16(i+2))
-		x := this.SpriteRam.Read(uint16(i+3))
-		sprite := this.buildSprite(spriteId, offset)
-
+		//attr := this.SpriteRam.Read(uint16(i+2))
+		//x := this.SpriteRam.Read(uint16(i+3))
+		sprite = this.buildSprite(spriteId, offset)
 	}
 	/*
 	public function buildSprites()
@@ -136,23 +139,20 @@ func (this *Ppu) buildSprites() {
 	*/
 }
 
-func (this *Ppu) buildSprite(spriteId int, offset int) {
-	/*
-	public function buildSprite(int $spriteId, int $offset): array
-	{
-	$sprite = array_fill(0, 8, array_fill(0, 8, 0));
-	for ($i = 0; $i < 16; $i = ($i + 1) | 0) {
-	for ($j = 0; $j < 8; $j = ($j + 1) | 0) {
-	$addr = $spriteId * 16 + $i + $offset;
-	$ram = $this->readCharacterRAM($addr);
-	if ($ram & (0x80 >> $j)) {
-	$sprite[$i % 8][$j] += 0x01 << ~~($i / 8);
+func (this *Ppu) buildSprite(spriteId uint8, offset uint16) Sprite {
+	sprite := Sprite{}
+	for i := 0 ; i < 16 ; i++ {
+		for j := 0 ; j < 8 ; j++ {
+			addr := uint16(spriteId * 16) + uint16(i) + offset
+			ram := this.readCharacterRAM(addr)
+			if (ram & uint8(0x80 >> uint8(j))) != 0 {
+				sprite[i%8][j] += uint8(0x01 << uint8(i/8))
+			}
+		}
 	}
-	}
-	}
-	return $sprite;
-	}
-	}
-	*/
+	return sprite
+}
 
+func (this *Ppu) readCharacterRAM(addr uint16) byte {
+	return this.Bus.ReadByPpu(addr)
 }
