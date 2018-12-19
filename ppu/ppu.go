@@ -7,6 +7,8 @@ import (
 
 const SPRITES_NUMBER = 0x100
 
+const SPRITES_ARRAY_MAX = 64
+
 const CYCLES_PER_LINE = 341
 
 type Sprite [8][8]byte
@@ -24,9 +26,7 @@ type Ppu struct {
 	SpriteRam       bus.Ram
 	Bus             bus.PpuBus
 	Background      Background
-
-	/** @var \Nes\Ppu\SpriteWithAttribute[] */
-	//Sprites
+	Sprites         []SpriteWithAttribute
 
 	Palette           PaletteRam
 	Interrupts        cpu_interrupts.Interrupts
@@ -50,7 +50,7 @@ func NewPpu(ppubus bus.PpuBus, interrupts cpu_interrupts.Interrupts, isHrizontal
 		SpriteRam:         bus.NewRam(0x100),
 		SpriteRamAddr:     0,
 		Background:        NewBackground(),
-		//Sprites: []
+		Sprites:           make([]SpriteWithAttribute, SPRITES_ARRAY_MAX),
 		Bus:               ppubus,
 		Interrupts:        interrupts,
 		IsHrizontalMirror: isHrizontalMirror,
@@ -116,9 +116,10 @@ func (this *Ppu) buildSprites() {
 			return
 		}
 		spriteId := this.SpriteRam.Read(uint16(i+1))
-		//attr := this.SpriteRam.Read(uint16(i+2))
-		//x := this.SpriteRam.Read(uint16(i+3))
+		attr := this.SpriteRam.Read(uint16(i+2))
+		x := this.SpriteRam.Read(uint16(i+3))
 		sprite = this.buildSprite(spriteId, offset)
+		this.Sprites[i/4] = NewStripeWithAttribute(sprite, x, y, attr, spriteId)
 	}
 	/*
 	public function buildSprites()
