@@ -121,23 +121,6 @@ func (this *Ppu) buildSprites() {
 		sprite = this.buildSprite(spriteId, offset)
 		this.Sprites[i/4] = NewStripeWithAttribute(sprite, x, y, attr, spriteId)
 	}
-	/*
-	public function buildSprites()
-	{
-	$offset = ($this->registers[0] & 0x08) ? 0x1000 : 0x0000;
-	for ($i = 0; $i < self::SPRITES_NUMBER; $i = ($i + 4) | 0) {
-	// INFO: Offset sprite Y position, because First and last 8line is not rendered.
-	$y = $this->spriteRam->read($i) - 8;
-	if ($y < 0) {
-	return;
-	}
-	$spriteId = $this->spriteRam->read($i + 1);
-	$attr = $this->spriteRam->read($i + 2);
-	$x = $this->spriteRam->read($i + 3);
-	$sprite = $this->buildSprite($spriteId, $offset);
-	$this->sprites[$i / 4] = new SpriteWithAttribute($sprite, $x, $y, $attr, $spriteId);
-	}
-	*/
 }
 
 func (this *Ppu) buildSprite(spriteId uint8, offset uint16) Sprite {
