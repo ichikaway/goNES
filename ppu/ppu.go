@@ -14,7 +14,7 @@ const CYCLES_PER_LINE = 341
 type Sprite [8][8]byte
 
 type Ppu struct {
-	Registers       []int
+	Registers       []byte
 	Cycle           int
 	Line            int
 	IsValidVramAddr bool
@@ -38,7 +38,7 @@ type Ppu struct {
 
 func NewPpu(ppubus bus.PpuBus, interrupts cpu_interrupts.Interrupts, isHrizontalMirror bool) Ppu {
 	ppu := Ppu{
-		Registers:         make([]int, 7),
+		Registers:         make([]byte, 7),
 		Cycle:             0,
 		Line:              0,
 		IsValidVramAddr:   false,
