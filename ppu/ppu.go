@@ -22,7 +22,7 @@ type Ppu struct {
 	SpriteRamAddr   uint16
 	VramAddr        uint16
 	Vram            bus.Ram
-	VramReadBuf     int
+	VramReadBuf     byte
 	SpriteRam       bus.Ram
 	Bus             bus.PpuBus
 	Background      Background
@@ -103,12 +103,44 @@ func (this Ppu) Read(addr uint16) byte {
 		return this.SpriteRam.Read(this.SpriteRamAddr)
 	}
 	if addr == 0x0007 {
-		// todo
-		//return $this->readVram();
+		return this.readVram()
 	}
 
 	return 0x0000
 }
+
+func (this Ppu) vramOffset() uint16 {
+	if (this.Registers[0x00] & 0x04) == 0x04 {
+		return 32
+	}
+	return 1
+}
+
+
+func (this Ppu) calcVramAddr() uint16 {
+	if this.VramAddr >= 0x3000 && this.VramAddr < 0x3f00 {
+		return this.VramAddr - 0x3000
+	}
+	return this.VramAddr - 0x2000
+}
+
+func (this *Ppu) readVram() byte {
+	buf := this.VramReadBuf
+	if this.VramAddr >= 0x2000 {
+		addr := this.calcVramAddr()
+		this.VramAddr += this.vramOffset()
+		if addr >= 0x3F00 {
+			return this.Vram.Read(addr)
+		}
+		this.VramReadBuf = this.Vram.Read(addr)
+	} else {
+		this.VramReadBuf = this.readCharacterRAM(this.VramAddr)
+		this.VramAddr += this.vramOffset()
+	}
+	return buf
+}
+
+
 
 func (this *Ppu) Write(addr uint16, data byte) {
 	//todo
