@@ -198,6 +198,22 @@ func (this *Ppu) readVram() byte {
 
 func (this *Ppu) Write(addr uint16, data byte) {
 	//todo
+	if addr == 0x0003 {
+		this.writeSpriteRamAddr(data)
+	}
+	if addr == 0x0004 {
+		this.writeSpriteRamData(data)
+	}
+	if addr == 0x0005 {
+		this.writeScrollData(data)
+	}
+	if addr == 0x0006 {
+		this.writeVramAddr(data)
+	}
+	if addr == 0x0007 {
+		this.writeVramData(data)
+	}
+	this.Registers[addr] = data
 }
 
 func (this *Ppu) Run(cpuCycle int) bool {
