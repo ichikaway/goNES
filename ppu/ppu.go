@@ -80,7 +80,33 @@ func (this *Ppu) clearVblank() {
 }
 
 func (this Ppu) Read(addr uint16) byte {
-	//todo
+	/*
+        | bit  | description                                 |
+        +------+---------------------------------------------+
+        | 7    | 1: VBlank clear by reading this register    |
+        | 6    | 1: sprite hit                               |
+        | 5    | 0: less than 8, 1: 9 or more                |
+        | 4-0  | invalid                                     |
+        |      | bit4 VRAM write flag [0: success, 1: fail]  |
+	*/
+
+	if addr == 0x0002 {
+		this.IsHrizontalScroll = true
+		data := this.Registers[0x02]
+		this.clearVblank()
+		return data
+	}
+
+	// Write OAM data here. Writes will increment OAMADDR after the write
+	// reads during vertical or forced blanking return the value from OAM at that address but do not increment.
+	if addr == 0x0004 {
+		return this.SpriteRam.Read(this.SpriteRamAddr)
+	}
+	if addr == 0x0007 {
+		// todo
+		//return $this->readVram();
+	}
+
 	return 0x0000
 }
 
