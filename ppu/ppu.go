@@ -73,6 +73,12 @@ func (this *Ppu)TransferSprite(index uint16, data byte) {
 	this.SpriteRam.Write(addr % 0x100, data) //256以上のアドレスに入れさせないために256の剰余を求める
 }
 
+
+
+func (this *Ppu) clearVblank() {
+	this.Registers[0x02] &= 0x7F
+}
+
 func (this Ppu) Read(addr uint16) byte {
 	//todo
 	return 0x0000
