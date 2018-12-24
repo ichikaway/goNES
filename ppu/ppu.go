@@ -216,6 +216,38 @@ func (this *Ppu) Write(addr uint16, data byte) {
 	this.Registers[addr] = data
 }
 
+
+func (this *Ppu) writeVramAddr(data byte) {
+	if this.IsLowerVramAddr {
+		this.VramAddr += uint16(data)
+		this.IsLowerVramAddr = false
+		this.IsValidVramAddr = true
+	} else {
+		this.VramAddr = uint16(data) << 8
+		this.IsLowerVramAddr = true
+		this.IsValidVramAddr = false
+	}
+}
+
+func (this *Ppu) writeScrollData(data byte) {
+	if this.IsHrizontalScroll {
+		this.IsHrizontalScroll = false
+		this.ScrollX = data
+	} else {
+		this.ScrollY = data
+		this.IsHrizontalScroll = true
+	}
+}
+
+func (this *Ppu) writeSpriteRamData(data byte) {
+	this.SpriteRam.Write(this.SpriteRamAddr, data)
+	this.SpriteRamAddr += 1
+}
+
+func (this *Ppu) writeSpriteRamAddr(data byte) {
+	this.SpriteRamAddr = uint16(data)
+}
+
 func (this *Ppu) Run(cpuCycle int) bool {
 	cycle := this.Cycle + cpuCycle
 	if cycle < CYCLES_PER_LINE {
