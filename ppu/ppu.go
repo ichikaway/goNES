@@ -217,6 +217,19 @@ func (this *Ppu) Write(addr uint16, data byte) {
 }
 
 
+func (this *Ppu) writeVramData(data byte) {
+	if this.VramAddr >= 0x2000 {
+		if this.VramAddr >= 0x3f00 && this.VramAddr < 0x4000 {
+			this.Palette.Write(this.VramAddr - 0x3f00, data)
+		} else {
+			this.Vram.Write(this.calcVramAddr(), data)
+		}
+	} else {
+		this.writeCharacterRAM(this.VramAddr, data)
+	}
+	this.VramAddr += this.vramOffset()
+}
+
 func (this *Ppu) writeVramAddr(data byte) {
 	if this.IsLowerVramAddr {
 		this.VramAddr += uint16(data)
@@ -305,4 +318,8 @@ func (this *Ppu) buildSprite(spriteId uint8, offset uint16) Sprite {
 
 func (this *Ppu) readCharacterRAM(addr uint16) byte {
 	return this.Bus.ReadByPpu(addr)
+}
+
+func (this *Ppu) writeCharacterRAM(addr uint16, data byte) {
+	this.Bus.WriteByPpu(addr, data)
 }
