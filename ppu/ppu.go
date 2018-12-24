@@ -197,7 +197,6 @@ func (this *Ppu) readVram() byte {
 
 
 func (this *Ppu) Write(addr uint16, data byte) {
-	//todo
 	if addr == 0x0003 {
 		this.writeSpriteRamAddr(data)
 	}
