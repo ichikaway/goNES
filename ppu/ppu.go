@@ -85,8 +85,8 @@ type Ppu struct {
 	Palette           PaletteRam
 	Interrupts        cpu_interrupts.Interrupts
 	IsHrizontalScroll bool
-	ScrollX           int
-	ScrollY           int
+	ScrollX           byte
+	ScrollY           byte
 	IsHrizontalMirror bool
 }
 
