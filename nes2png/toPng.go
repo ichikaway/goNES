@@ -69,7 +69,7 @@ func buildSprite(charRom []byte, spriteId uint8) Sprite {
 	sprite := Sprite{}
 	for i := 0 ; i < 16 ; i++ {
 		for j := 0 ; j < 8 ; j++ {
-			addr := uint16(spriteId * 16) + uint16(i)
+			addr := uint16(spriteId) * 16 + uint16(i)
 			//fmt.Println(addr)
 			ram := charRom[addr]
 			if (ram & uint8(0x80 >> uint8(j))) != 0 {
