@@ -46,7 +46,9 @@ func main() {
 
 
 	img := image.NewRGBA(image.Rect(0,0, DEFAULT_CANVAS_WIDTH, height))
-	fillRect(img, color.RGBA{0, 0, 0, 255})
+
+
+
 	file, _ := os.Create("sample.png")
 	defer file.Close()
 
@@ -79,11 +81,3 @@ func buildSprite(charRom []byte, spriteId uint8) Sprite {
 	return sprite
 }
 
-func fillRect(img *image.RGBA, col color.Color) {
-	rect := img.Rect
-	for y := rect.Min.Y; y < rect.Max.Y; y++ {
-		for v := rect.Min.X; v < rect.Max.X; v++ {
-			img.Set(v, y, col)
-		}
-	}
-}
