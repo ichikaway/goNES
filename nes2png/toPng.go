@@ -7,6 +7,9 @@ package main
 import (
 	"fmt"
 	"goNES/nes"
+	"image"
+	"image/color"
+	"image/png"
 	"io/ioutil"
 	"os"
 )
@@ -34,13 +37,31 @@ func main() {
 	}
 
 	nesData := nes.New(data)
-	fmt.Println(nesData)
+	//fmt.Println(nesData)
 
 	spritesPerRow := DEFAULT_CANVAS_WIDTH / (8 * PIXEL_RATIO)
 	spritesNum := len(nesData.Rom.CharacterRom) / 16
 	rowNum := (spritesNum / spritesPerRow) + 1
-
 	height := rowNum * 8 * PIXEL_RATIO
+
+
+	x := 0
+	y := 0
+	img := image.NewRGBA(image.Rect(x, y, DEFAULT_CANVAS_WIDTH, height))
+	fillRect(img, color.RGBA{255, 0, 0, 0})
+	file, _ := os.Create("sample.png")
+	defer file.Close()
+
+
+	if err := png.Encode(file, img); err != nil {
+		panic(err)
+	}
+
+
+	for i := 0 ; i < spritesNum ; i++ {
+		//sprite := buildSprite(nesData.Rom.CharacterRom, uint8(i))
+		//fmt.Println(sprite)
+	}
 
 }
 
@@ -58,4 +79,16 @@ func buildSprite(charRom []byte, spriteId uint8) Sprite {
 		}
 	}
 	return sprite
+}
+
+func fillRect(img *image.RGBA, col color.Color) {
+	// 矩形を取得
+	rect := img.Rect
+
+	// 全部埋める
+	for h := rect.Min.Y; h < rect.Max.Y; h++ {
+		for v := rect.Min.X; v < rect.Max.X; v++ {
+			img.Set(v, h, col)
+		}
+	}
 }
