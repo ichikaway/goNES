@@ -48,10 +48,9 @@ func main() {
 	x := 0
 	y := 0
 	img := image.NewRGBA(image.Rect(x, y, DEFAULT_CANVAS_WIDTH, height))
-	fillRect(img, color.RGBA{255, 0, 0, 0})
+	fillRect(img, color.RGBA{255, 0, 0, 255})
 	file, _ := os.Create("sample.png")
 	defer file.Close()
-
 
 	if err := png.Encode(file, img); err != nil {
 		panic(err)
@@ -82,13 +81,10 @@ func buildSprite(charRom []byte, spriteId uint8) Sprite {
 }
 
 func fillRect(img *image.RGBA, col color.Color) {
-	// 矩形を取得
 	rect := img.Rect
-
-	// 全部埋める
-	for h := rect.Min.Y; h < rect.Max.Y; h++ {
+	for y := rect.Min.Y; y < rect.Max.Y; y++ {
 		for v := rect.Min.X; v < rect.Max.X; v++ {
-			img.Set(v, h, col)
+			img.Set(v, y, col)
 		}
 	}
 }
