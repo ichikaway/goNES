@@ -45,10 +45,8 @@ func main() {
 	height := rowNum * 8 * PIXEL_RATIO
 
 
-	x := 0
-	y := 0
-	img := image.NewRGBA(image.Rect(x, y, DEFAULT_CANVAS_WIDTH, height))
-	fillRect(img, color.RGBA{255, 0, 0, 255})
+	img := image.NewRGBA(image.Rect(0,0, DEFAULT_CANVAS_WIDTH, height))
+	fillRect(img, color.RGBA{0, 0, 0, 255})
 	file, _ := os.Create("sample.png")
 	defer file.Close()
 
@@ -58,11 +56,11 @@ func main() {
 
 
 	for i := 0 ; i < spritesNum ; i++ {
-		//sprite := buildSprite(nesData.Rom.CharacterRom, uint8(i))
-		//fmt.Println(sprite)
+		sprite := buildSprite(nesData.Rom.CharacterRom, uint8(i))
+		fmt.Println(sprite)
 	}
-
 }
+
 
 
 func buildSprite(charRom []byte, spriteId uint8) Sprite {
@@ -72,6 +70,7 @@ func buildSprite(charRom []byte, spriteId uint8) Sprite {
 			addr := uint16(spriteId) * 16 + uint16(i)
 			//fmt.Println(addr)
 			ram := charRom[addr]
+			//fmt.Println(ram)
 			if (ram & uint8(0x80 >> uint8(j))) != 0 {
 				sprite[i%8][j] += uint8(0x01 << uint8(i/8))
 			}
