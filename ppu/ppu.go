@@ -349,7 +349,9 @@ func (this *Ppu) buildBackground() {
 	}
 	// background of a line.
 	// Build viewport + 1 tile for background scroll.
-
+	for x := 0 ; x < 32 + 1 ; x = (x+1) | 0 {
+		tileX := x + this.scrollTileX()
+	}
 	/**
 	    // INFO: Horizontal offsets range from 0 to 255. "Normal" vertical offsets range from 0 to 239,
         // while values of 240 to 255 are treated as -16 through -1 in a way, but tile data is incorrectly
