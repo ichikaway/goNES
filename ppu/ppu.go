@@ -275,6 +275,11 @@ func (this Ppu) hasSpriteHit() bool {
 	return false
 }
 
+func (this *Ppu) setSpriteHit() {
+	this.Registers[0x02] |= 0x40
+}
+
+
 func (this *Ppu) Run(cpuCycle int) bool {
 	cycle := this.Cycle + cpuCycle
 	if cycle < CYCLES_PER_LINE {
@@ -292,7 +297,7 @@ func (this *Ppu) Run(cpuCycle int) bool {
 		this.Line++
 
 		if this.hasSpriteHit() {
-
+			this.setSpriteHit()
 		}
 	}
 
