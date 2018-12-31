@@ -1,6 +1,7 @@
 package ppu
 
 import (
+	"fmt"
 	"goNES/bus"
 	"goNES/cpu_interrupts"
 )
@@ -279,6 +280,17 @@ func (this *Ppu) setSpriteHit() {
 	this.Registers[0x02] |= 0x40
 }
 
+func (this Ppu) nameTableId() byte {
+	return this.Registers[0x00] & 0x03
+}
+
+func (this Ppu) scrollTileY() int {
+	return (int(this.ScrollY) + (int(this.nameTableId()) / 2 * 240)) / 8
+}
+
+func (this Ppu) tileY() int {
+	return (this.Line / 8) + this.scrollTileY()
+}
 
 func (this *Ppu) Run(cpuCycle int) bool {
 	cycle := this.Cycle + cpuCycle
@@ -299,10 +311,46 @@ func (this *Ppu) Run(cpuCycle int) bool {
 		if this.hasSpriteHit() {
 			this.setSpriteHit()
 		}
+		if this.Line <= 240 && this.Line % 8 == 0 && this.ScrollY <= 240 {
+			this.buildBackground()
+		}
+
 	}
 
 
 	return false
+}
+
+func (this *Ppu) buildBackground() {
+	// INFO: Horizontal offsets range from 0 to 255. "Normal" vertical offsets range from 0 to 239,
+	// while values of 240 to 255 are treated as -16 through -1 in a way, but tile data is incorrectly
+	// fetched from the attribute table.
+
+	clampedTileY := this.tileY() % 30
+	tableIdOffset := 0
+	if ((this.tileY() / 30) % 2) > 0 {
+		tableIdOffset = 2
+	}
+	// background of a line.
+	// Build viewport + 1 tile for background scroll.
+
+	/**
+	    // INFO: Horizontal offsets range from 0 to 255. "Normal" vertical offsets range from 0 to 239,
+        // while values of 240 to 255 are treated as -16 through -1 in a way, but tile data is incorrectly
+        // fetched from the attribute table.
+        $clampedTileY = $this->tileY() % 30;
+        $tableIdOffset = (~~($this->tileY() / 30) % 2) ? 2 : 0;
+        // background of a line.
+        // Build viewport + 1 tile for background scroll.
+        for ($x = 0; $x < 32 + 1; $x = ($x + 1) | 0) {
+            $tileX = ($x + $this->scrollTileX());
+            $clampedTileX = $tileX % 32;
+            $nameTableId = (~~($tileX / 32) % 2) + $tableIdOffset;
+            $offsetAddrByNameTable = $nameTableId * 0x400;
+            $tile = $this->buildTile($clampedTileX, $clampedTileY, $offsetAddrByNameTable);
+            $this->background[] = $tile;
+        }
+	 */
 }
 
 func (this *Ppu) buildSprites() {
@@ -324,6 +372,7 @@ func (this *Ppu) buildSprites() {
 		x := this.SpriteRam.Read(uint16(i+3))
 		sprite = this.buildSprite(spriteId, offset)
 		this.Sprites[i/4] = NewStripeWithAttribute(sprite, x, y, attr, spriteId)
+		fmt.Println(sprite)
 	}
 }
 
