@@ -284,6 +284,22 @@ func (this Ppu) nameTableId() byte {
 	return this.Registers[0x00] & 0x03
 }
 
+func (this Ppu) scrollTileX() int {
+	/*
+    Name table id and address
+    +------------+------------+
+    |            |            |
+    |  0(0x2000) |  1(0x2400) |
+    |            |            |
+    +------------+------------+
+    |            |            |
+    |  2(0x2800) |  3(0x2C00) |
+    |            |            |
+    +------------+------------+
+	*/
+	return (int(this.ScrollX) + ((int(this.nameTableId()) % 2) * 256)) / 8
+}
+
 func (this Ppu) scrollTileY() int {
 	return (int(this.ScrollY) + (int(this.nameTableId()) / 2 * 240)) / 8
 }
