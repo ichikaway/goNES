@@ -260,6 +260,21 @@ func (this *Ppu) writeSpriteRamAddr(data byte) {
 	this.SpriteRamAddr = uint16(data)
 }
 
+func (this Ppu) isBackgroundEnable() bool {
+	return (this.Registers[0x01] & 0x08) == 0x08
+}
+func (this Ppu) isSpriteEnable() bool {
+	return (this.Registers[0x01] & 0x10) == 0x10
+}
+
+func (this Ppu) hasSpriteHit() bool {
+	y := this.SpriteRam.Read(0)
+	if int(y) == this.Line && this.isBackgroundEnable() && this.isSpriteEnable() {
+		return true
+	}
+	return false
+}
+
 func (this *Ppu) Run(cpuCycle int) bool {
 	cycle := this.Cycle + cpuCycle
 	if cycle < CYCLES_PER_LINE {
@@ -272,8 +287,14 @@ func (this *Ppu) Run(cpuCycle int) bool {
 		this.buildSprites()
 	}
 
-	this.Cycle = cycle - CYCLES_PER_LINE
-	this.Line++
+	if this.Line >= CYCLES_PER_LINE {
+		this.Cycle = cycle - CYCLES_PER_LINE
+		this.Line++
+
+		if this.hasSpriteHit() {
+
+		}
+	}
 
 
 	return false
