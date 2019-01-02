@@ -351,25 +351,37 @@ func (this *Ppu) buildBackground() {
 	// Build viewport + 1 tile for background scroll.
 	for x := 0 ; x < 32 + 1 ; x = (x+1) | 0 {
 		tileX := x + this.scrollTileX()
+		clampedTileX := tileX % 32
+		nameTableId := ((tileX / 32) % 2) + tableIdOffset
+		offsetAddrByNameTable := nameTableId * 0x400
+		tile := this.buildTile(clampedTileX, clampedTileY, offsetAddrByNameTable)
+		this.Background.Tiles = append(this.Background.Tiles, tile)
 	}
-	/**
-	    // INFO: Horizontal offsets range from 0 to 255. "Normal" vertical offsets range from 0 to 239,
-        // while values of 240 to 255 are treated as -16 through -1 in a way, but tile data is incorrectly
-        // fetched from the attribute table.
-        $clampedTileY = $this->tileY() % 30;
-        $tableIdOffset = (~~($this->tileY() / 30) % 2) ? 2 : 0;
-        // background of a line.
-        // Build viewport + 1 tile for background scroll.
-        for ($x = 0; $x < 32 + 1; $x = ($x + 1) | 0) {
-            $tileX = ($x + $this->scrollTileX());
-            $clampedTileX = $tileX % 32;
-            $nameTableId = (~~($tileX / 32) % 2) + $tableIdOffset;
-            $offsetAddrByNameTable = $nameTableId * 0x400;
-            $tile = $this->buildTile($clampedTileX, $clampedTileY, $offsetAddrByNameTable);
-            $this->background[] = $tile;
-        }
-	 */
 }
+
+func (this Ppu) buildTile(tileX int, tileY int, offset int) Tile {
+	// INFO see. http://hp.vector.co.jp/authors/VA042397/nes/ppu.html
+
+
+}
+/*
+    public function buildTile(int $tileX, int $tileY, int $offset): Tile
+    {
+        // INFO see. http://hp.vector.co.jp/authors/VA042397/nes/ppu.html
+        $blockId = $this->getBlockId($tileX, $tileY);
+        $spriteId = $this->getSpriteId($tileX, $tileY, $offset);
+        $attr = $this->getAttribute($tileX, $tileY, $offset);
+        $paletteId = ($attr >> ($blockId * 2)) & 0x03;
+        $sprite = $this->buildSprite($spriteId, $this->backgroundTableOffset());
+        return new Tile(
+            $sprite,
+            $paletteId,
+            $this->scrollX,
+            $this->scrollY
+        );
+    }
+
+ */
 
 func (this *Ppu) buildSprites() {
 	var offset uint16 = 0x0000
