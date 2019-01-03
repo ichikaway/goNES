@@ -1,6 +1,7 @@
 package nes
 
 import (
+	"fmt"
 	"goNES/bus"
 	"goNES/cpu"
 	"goNES/cpu_interrupts"
@@ -60,15 +61,18 @@ func (nes *Nes) Load() {
 }
 
 func (nes *Nes) frame() {
+	cycle := 0
 	for {
-		cycle := 0
 		if nes.Dma.IsDmaProcessing() {
 			nes.Dma.RunDma()
 			cycle = 514
 		}
 		cycle += nes.Cpu.Run()
 
-		renderingData := nes.Ppu.Run(cycle * 3);
+		if nes.Ppu.Run(cycle * 3) {
+			fmt.Println(nes.Ppu.Background)
+			panic("")
+		}
 
 		/* todo
             if ($renderingData) {

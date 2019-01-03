@@ -378,6 +378,21 @@ func (this *Ppu) Run(cpuCycle int) bool {
 			}
 		}
 
+		if this.Line == 262 {
+			return true
+		}
+		/**
+		        if ($this->line === 262) {
+                $this->clearVblank();
+                $this->clearSpriteHit();
+                $this->line = 0;
+                $this->interrupts->deassertNmi();
+                return new RenderingData(
+                    $this->getPalette(),
+                    $this->isBackgroundEnable() ? $this->background : null,
+                    $this->isSpriteEnable() ? $this->sprites : null
+                );
+		 */
 	}
 
 
