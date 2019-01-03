@@ -276,6 +276,14 @@ func (this Ppu) hasSpriteHit() bool {
 	return false
 }
 
+func (this *Ppu) setVblank() {
+	this.Registers[0x02] |= 0x80
+}
+func (this Ppu) hasVblankIrqEnabled() bool {
+	return this.Registers[0] & 0x80 == 0x80
+}
+
+
 func (this *Ppu) setSpriteHit() {
 	this.Registers[0x02] |= 0x40
 }
@@ -362,6 +370,12 @@ func (this *Ppu) Run(cpuCycle int) bool {
 		}
 		if this.Line <= 240 && this.Line % 8 == 0 && this.ScrollY <= 240 {
 			this.buildBackground()
+		}
+		if this.Line == 241 {
+			this.setVblank()
+			if this.hasVblankIrqEnabled() {
+				this.Interrupts.AssertNmi()
+			}
 		}
 
 	}
