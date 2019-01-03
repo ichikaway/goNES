@@ -361,7 +361,7 @@ func (this *Ppu) Run(cpuCycle int) bool {
 		this.buildSprites()
 	}
 
-	if this.Line >= CYCLES_PER_LINE {
+	if this.Cycle >= CYCLES_PER_LINE {
 		this.Cycle = cycle - CYCLES_PER_LINE
 		this.Line++
 
