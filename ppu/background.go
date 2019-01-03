@@ -1,10 +1,10 @@
 package ppu
 
 type Tile struct {
-	tile       []Sprite
-	scroll_x   byte
-	scroll_y   byte
-	paletteId  int
+	Sprite     Sprite
+	Scroll_x   byte
+	Scroll_y   byte
+	PaletteId  int
 }
 
 type Background struct {

@@ -308,6 +308,39 @@ func (this Ppu) tileY() int {
 	return (this.Line / 8) + this.scrollTileY()
 }
 
+func getBlockId(tileX int, tileY int) byte {
+	return uint8(((tileX % 4) / 2) + ((tileY % 4) / 2) * 2)
+}
+
+func (this Ppu) getAttribute(tileX int, tileY int, offset int) byte {
+	addr := (tileX / 4) + ((tileY / 4) * 8) + 0x03c0 + offset
+	return this.Vram.Read(uint16(addr))
+}
+
+func (this Ppu) getSpriteId(tileX int, tileY int, offset int) byte {
+	tileNumber := tileY * 32 + tileX
+	spriteAddr := this.mirrorDownSpriteAddr(uint16(tileNumber + offset))
+	return this.Vram.Read(spriteAddr)
+}
+
+func (this Ppu) mirrorDownSpriteAddr(addr uint16) uint16 {
+	if !this.IsHrizontalMirror {
+		return addr
+	}
+	if addr >= 0x0400 && addr < 0x0800 || addr >= 0x0c00 {
+		return addr - 0x400
+	}
+	return addr
+}
+
+func (this Ppu) backgroundTableOffset() uint16 {
+	if (this.Registers[0] & 0x10) == 0x10 {
+		return 0x1000
+	}
+	return 0x0000
+}
+
+
 func (this *Ppu) Run(cpuCycle int) bool {
 	cycle := this.Cycle + cpuCycle
 	if cycle < CYCLES_PER_LINE {
@@ -361,27 +394,20 @@ func (this *Ppu) buildBackground() {
 
 func (this Ppu) buildTile(tileX int, tileY int, offset int) Tile {
 	// INFO see. http://hp.vector.co.jp/authors/VA042397/nes/ppu.html
+	blockId := getBlockId(tileX, tileY)
+	spriteId := this.getSpriteId(tileX, tileY, offset)
+	attr := this.getAttribute(tileX, tileY, offset)
+	paletteId := (attr >> (blockId * 2)) & 0x03
+	sprite := this.buildSprite(spriteId, this.backgroundTableOffset())
 
-
+	return Tile{
+		Sprite:    sprite,
+		Scroll_x:  this.ScrollX,
+		Scroll_y:  this.ScrollY,
+		PaletteId: int(paletteId),
+	}
 }
-/*
-    public function buildTile(int $tileX, int $tileY, int $offset): Tile
-    {
-        // INFO see. http://hp.vector.co.jp/authors/VA042397/nes/ppu.html
-        $blockId = $this->getBlockId($tileX, $tileY);
-        $spriteId = $this->getSpriteId($tileX, $tileY, $offset);
-        $attr = $this->getAttribute($tileX, $tileY, $offset);
-        $paletteId = ($attr >> ($blockId * 2)) & 0x03;
-        $sprite = $this->buildSprite($spriteId, $this->backgroundTableOffset());
-        return new Tile(
-            $sprite,
-            $paletteId,
-            $this->scrollX,
-            $this->scrollY
-        );
-    }
 
- */
 
 func (this *Ppu) buildSprites() {
 	var offset uint16 = 0x0000
