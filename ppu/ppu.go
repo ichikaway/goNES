@@ -351,8 +351,8 @@ func (this Ppu) backgroundTableOffset() uint16 {
 
 func (this *Ppu) Run(cpuCycle int) bool {
 	cycle := this.Cycle + cpuCycle
+	this.Cycle = cycle
 	if cycle < CYCLES_PER_LINE {
-		this.Cycle = cycle
 		return false
 	}
 
