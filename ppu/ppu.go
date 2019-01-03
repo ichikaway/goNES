@@ -93,7 +93,7 @@ type Ppu struct {
 
 func NewPpu(ppubus bus.PpuBus, interrupts cpu_interrupts.Interrupts, isHrizontalMirror bool) Ppu {
 	ppu := Ppu{
-		Registers:         make([]byte, 7),
+		Registers:         make([]byte, 8),
 		Cycle:             0,
 		Line:              0,
 		IsValidVramAddr:   false,
