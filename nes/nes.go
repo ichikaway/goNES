@@ -1,7 +1,6 @@
 package nes
 
 import (
-	"fmt"
 	"goNES/bus"
 	"goNES/cpu"
 	"goNES/cpu_interrupts"
@@ -70,8 +69,8 @@ func (nes *Nes) frame() {
 		cycle += nes.Cpu.Run()
 
 		if nes.Ppu.Run(cycle * 3) {
-			fmt.Println(nes.Ppu.Background)
-			panic("")
+			//fmt.Println(nes.Ppu.RenderingData)
+			//panic("")
 		}
 
 		/* todo
