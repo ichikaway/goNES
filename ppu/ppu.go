@@ -1,7 +1,6 @@
 package ppu
 
 import (
-	"fmt"
 	"goNES/bus"
 	"goNES/cpu_interrupts"
 )
@@ -82,7 +81,7 @@ type Ppu struct {
 	Bus             bus.PpuBus
 	Background      Background
 	Sprites         []SpriteWithAttribute
-
+    RenderingData   RenderingData
 	Palette           PaletteRam
 	Interrupts        cpu_interrupts.Interrupts
 	IsHrizontalScroll bool
@@ -112,6 +111,7 @@ func NewPpu(ppubus bus.PpuBus, interrupts cpu_interrupts.Interrupts, isHrizontal
 		ScrollX:           0,
 		ScrollY:           0,
 		Palette:           NewPaletteRam(),
+		RenderingData:     RenderingData{},
 	}
 	return ppu
 }
@@ -132,6 +132,10 @@ func (this *Ppu)TransferSprite(index uint16, data byte) {
 
 func (this *Ppu) clearVblank() {
 	this.Registers[0x02] &= 0x7F
+}
+
+func (this *Ppu) clearSpriteHit() {
+	this.Registers[0x02] &= 0xbf
 }
 
 func (this Ppu) Read(addr uint16) byte {
@@ -379,20 +383,26 @@ func (this *Ppu) Run(cpuCycle int) bool {
 		}
 
 		if this.Line == 262 {
+			this.clearVblank()
+			this.clearSpriteHit()
+			this.Line = 0
+			this.Interrupts.DeassertNmi()
+
+			background := Background{}
+			if this.isBackgroundEnable() {
+				background = this.Background
+			}
+			sprites := []SpriteWithAttribute{}
+			if this.isSpriteEnable() {
+				sprites = this.Sprites
+			}
+			this.RenderingData = RenderingData{
+				Palette:    this.Palette.Read(),
+				Background: background,
+				Sprites:    sprites,
+			}
 			return true
 		}
-		/**
-		        if ($this->line === 262) {
-                $this->clearVblank();
-                $this->clearSpriteHit();
-                $this->line = 0;
-                $this->interrupts->deassertNmi();
-                return new RenderingData(
-                    $this->getPalette(),
-                    $this->isBackgroundEnable() ? $this->background : null,
-                    $this->isSpriteEnable() ? $this->sprites : null
-                );
-		 */
 	}
 
 
@@ -457,7 +467,7 @@ func (this *Ppu) buildSprites() {
 		x := this.SpriteRam.Read(uint16(i+3))
 		sprite = this.buildSprite(spriteId, offset)
 		this.Sprites[i/4] = NewStripeWithAttribute(sprite, x, y, attr, spriteId)
-		fmt.Println(sprite)
+		//fmt.Println(sprite)
 	}
 }
 
