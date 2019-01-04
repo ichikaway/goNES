@@ -1,7 +1,6 @@
 package cpu
 
 import (
-	"fmt"
 	"goNES/cpu/registers"
 	"goNES/cpu_interrupts"
 	"goNES/cpubus"
@@ -30,7 +29,7 @@ func NewCpu(cpubus cpubus.CpuBus, interrupts cpu_interrupts.Interrupts) Cpu {
 func (cpu *Cpu) Reset() {
 	cpu.Registers = registers.GetDefaultRegisters()
 	cpu.Registers.PC = cpu.CpuBus.ReadWord(0xFFFC)
-	fmt.Printf("Initialize pc: %04x\n", cpu.Registers.PC)
+	//fmt.Printf("Initialize pc: %04x\n", cpu.Registers.PC)
 }
 
 /**
@@ -190,10 +189,10 @@ func (cpu *Cpu) getAddrOrDataWithAdditionalCycle(mode int) (uint16, int){
 func (this *Cpu) execInstruction(opecode int, data uint16, mode int) {
 	this.HasBranched = false
 
-	fmt.Println("base: ", opecode, "data:", data, "mode:", mode)
-	printOpecode(opecode)
-	printAddressingMode(mode)
-	fmt.Println("data: ", data)
+	//fmt.Println("base: ", opecode, "data:", data, "mode:", mode)
+	//printOpecode(opecode)
+	//printAddressingMode(mode)
+	//fmt.Println("data: ", data)
 
 	switch opecode {
 	case LDA:
@@ -511,10 +510,10 @@ func (this *Cpu) execInstruction(opecode int, data uint16, mode int) {
 	case SED:
 		this.Registers.P.Decimal_mode = true
 	case BRK:
-		fmt.Println("PC1: ",this.Registers.PC)
+		//fmt.Println("PC1: ",this.Registers.PC)
 		interrupt := this.Registers.P.Interrupt
 		this.Registers.IncrementPc()
-		fmt.Println("PC2: ",this.Registers.PC)
+		//fmt.Println("PC2: ",this.Registers.PC)
 		pc := this.Registers.GetPc()
 		this.push(uint8(pc >> 8))
 		this.push(uint8(pc))
@@ -526,7 +525,7 @@ func (this *Cpu) execInstruction(opecode int, data uint16, mode int) {
 			this.Registers.PC = fetched
 		}
 		this.Registers.DecrementPc()
-		fmt.Println("PC3: ",this.Registers.PC)
+		//fmt.Println("PC3: ",this.Registers.PC)
 	case NOP:
 		return
 	//ここから下はunofficialな実装
@@ -588,8 +587,8 @@ func (this *Cpu) compare(data uint16, mode int, registerVal byte) {
 }
 
 func (cpu *Cpu) Run() int {
-	fmt.Println("------------- CPU run ---------------")
-	fmt.Println("run Pc: ", cpu.Registers.PC)
+	//fmt.Println("------------- CPU run ---------------")
+	//fmt.Println("run Pc: ", cpu.Registers.PC)
 
 	if cpu.Interrupts.IsNmiAssert() {
 		cpu.processNmi()
@@ -600,9 +599,9 @@ func (cpu *Cpu) Run() int {
 
 	opcode := cpu.fetchByte()
 	opc := cpu.Opcode[opcode]
-	fmt.Println(opc)
+	//fmt.Println(opc)
 	data, additionalCycle := cpu.getAddrOrDataWithAdditionalCycle(opc.mode)
-	fmt.Println(data, additionalCycle)
+	//fmt.Println(data, additionalCycle)
 
 	cpu.execInstruction(opc.name, data, opc.mode)
 
