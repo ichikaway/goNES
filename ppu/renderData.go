@@ -6,14 +6,14 @@ type RenderingData struct {
 	Sprites    []SpriteWithAttribute
 }
 
-func (this RenderingData) isSetBackground() bool{
+func (this RenderingData) IsSetBackground() bool{
 	if len(this.Background.Tiles) > 0 {
 		return true
 	}
 	return false
 }
 
-func (this RenderingData) isSetSprites() bool{
+func (this RenderingData) IsSetSprites() bool{
 	if len(this.Sprites) > 0 {
 		return true
 	}
