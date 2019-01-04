@@ -1,6 +1,8 @@
 package render
 
-import "goNES/ppu"
+import (
+	"goNES/ppu"
+)
 
 type Renderer struct {
 	FrameBuffer [256*256*4]byte
@@ -33,10 +35,10 @@ func getColors() [64][3]byte {
 	return colors
 }
 
-func Render(data ppu.RenderingData) {
+func (this Renderer) Render(data ppu.RenderingData) {
 
 	if data.IsSetBackground() {
-		//$this->renderBackground($data->background, $data->palette);
+		this.renderBackground(data.Background, data.Palette)
 	}
 
 	if data.IsSetSprites() {
@@ -45,4 +47,43 @@ func Render(data ppu.RenderingData) {
 
 	//$this->canvas->draw($this->frameBuffer);
 }
+
+func (this Renderer) renderBackground(background ppu.Background, palette []byte) {
+	tiles := background.Tiles
+	for i := 0 ; i < len(tiles) ;  i++ {
+		x := (i % 33) * 8
+		y := (i / 33) * 8
+		this.renderTile(tiles[i], x, y, palette)
+	}
+}
+
+
+ func (this Renderer) renderTile(tile ppu.Tile, tileX int, tileY int, palette []byte) {
+
+ 	/*
+ 	    public function renderTile(Tile $tile, int $tileX, int $tileY, array $palette)
+    {
+        //{ sprite, paletteId, scrollX, scrollY }: Tile
+        $offsetX = $tile->scrollX % 8;
+        $offsetY = $tile->scrollY % 8;
+        for ($i = 0; $i < 8; $i = ($i + 1) | 0) {
+            for ($j = 0; $j < 8; $j = ($j + 1) | 0) {
+                $paletteIndex = $tile->paletteId * 4 + $tile->pattern[$i][$j];
+                $colorId = $palette[$paletteIndex];
+                $color = self::COLORS[$colorId];
+                $x = $tileX + $j - $offsetX;
+                $y = $tileY + $i - $offsetY;
+                if ($x >= 0 && 0xFF >= $x && $y >= 0 && $y < 224) {
+                    $index = ($x + ($y * 0x100)) * 4;
+                    $this->frameBuffer[$index] = $color[0];
+                    $this->frameBuffer[$index + 1] = $color[1];
+                    $this->frameBuffer[$index + 2] = $color[2];
+                    $this->frameBuffer[$index + 3] = 0xFF;
+                }
+            }
+        }
+    }
+ 	 */
+ }
+
 
