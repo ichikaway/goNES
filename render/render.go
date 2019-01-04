@@ -1,5 +1,15 @@
 package render
 
+import "goNES/ppu"
+
+type Renderer struct {
+	FrameBuffer [256*256*4]byte
+	Serial      int
+}
+
+func NewRenderer() Renderer {
+	return Renderer{}
+}
 
 func getColors() [64][3]byte {
 	colors := [64][3]byte{
@@ -21,5 +31,18 @@ func getColors() [64][3]byte {
 		{0x99, 0xFF, 0xFC}, {0xDD, 0xDD, 0xDD}, {0x11, 0x11, 0x11}, {0x11, 0x11, 0x11},
 	}
 	return colors
+}
+
+func Render(data ppu.RenderingData) {
+
+	if data.IsSetBackground() {
+		//$this->renderBackground($data->background, $data->palette);
+	}
+
+	if data.IsSetSprites() {
+		//$this->renderSprites($data->sprites, $data->palette);
+	}
+
+	//$this->canvas->draw($this->frameBuffer);
 }
 
