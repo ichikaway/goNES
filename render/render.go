@@ -5,7 +5,7 @@ import (
 )
 
 type Renderer struct {
-	FrameBuffer [256*256*4]byte
+	FrameBuffer [256 * 256 * 4]byte
 	Serial      int
 }
 
@@ -50,20 +50,19 @@ func (this Renderer) Render(data ppu.RenderingData) {
 
 func (this Renderer) renderBackground(background ppu.Background, palette []byte) {
 	tiles := background.Tiles
-	for i := 0 ; i < len(tiles) ;  i++ {
+	for i := 0; i < len(tiles); i++ {
 		x := (i % 33) * 8
 		y := (i / 33) * 8
 		this.renderTile(tiles[i], x, y, palette)
 	}
 }
 
-
- func (this Renderer) renderTile(tile ppu.Tile, tileX int, tileY int, palette []byte) {
+func (this Renderer) renderTile(tile ppu.Tile, tileX int, tileY int, palette []byte) {
 	offsetX := int(tile.Scroll_x) % 8
 	offsetY := int(tile.Scroll_y) % 8
 	colors := getColors()
-	for i:=0 ; i < 8 ; i++ {
-		for j:=0 ; j < 8 ; j++ {
+	for i := 0; i < 8; i++ {
+		for j := 0; j < 8; j++ {
 			paletteIndex := (tile.PaletteId * 4) + int(tile.Sprite[i][j])
 			colorId := palette[paletteIndex]
 			color := colors[colorId]
@@ -78,6 +77,4 @@ func (this Renderer) renderBackground(background ppu.Background, palette []byte)
 			}
 		}
 	}
- }
-
-
+}
