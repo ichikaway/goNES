@@ -59,31 +59,25 @@ func (this Renderer) renderBackground(background ppu.Background, palette []byte)
 
 
  func (this Renderer) renderTile(tile ppu.Tile, tileX int, tileY int, palette []byte) {
-
- 	/*
- 	    public function renderTile(Tile $tile, int $tileX, int $tileY, array $palette)
-    {
-        //{ sprite, paletteId, scrollX, scrollY }: Tile
-        $offsetX = $tile->scrollX % 8;
-        $offsetY = $tile->scrollY % 8;
-        for ($i = 0; $i < 8; $i = ($i + 1) | 0) {
-            for ($j = 0; $j < 8; $j = ($j + 1) | 0) {
-                $paletteIndex = $tile->paletteId * 4 + $tile->pattern[$i][$j];
-                $colorId = $palette[$paletteIndex];
-                $color = self::COLORS[$colorId];
-                $x = $tileX + $j - $offsetX;
-                $y = $tileY + $i - $offsetY;
-                if ($x >= 0 && 0xFF >= $x && $y >= 0 && $y < 224) {
-                    $index = ($x + ($y * 0x100)) * 4;
-                    $this->frameBuffer[$index] = $color[0];
-                    $this->frameBuffer[$index + 1] = $color[1];
-                    $this->frameBuffer[$index + 2] = $color[2];
-                    $this->frameBuffer[$index + 3] = 0xFF;
-                }
-            }
-        }
-    }
- 	 */
+	offsetX := int(tile.Scroll_x) % 8
+	offsetY := int(tile.Scroll_y) % 8
+	colors := getColors()
+	for i:=0 ; i < 8 ; i++ {
+		for j:=0 ; j < 8 ; j++ {
+			paletteIndex := (tile.PaletteId * 4) + int(tile.Sprite[i][j])
+			colorId := palette[paletteIndex]
+			color := colors[colorId]
+			x := tileX + j - offsetX
+			y := tileY + i - offsetY
+			if x >= 0 && 0xFF >= x && y >= 0 && y < 244 {
+				index := (x + (y * 0x100)) * 4
+				this.FrameBuffer[index] = color[0]
+				this.FrameBuffer[index+1] = color[1]
+				this.FrameBuffer[index+2] = color[2]
+				this.FrameBuffer[index+2] = 0xFF
+			}
+		}
+	}
  }
 
 
