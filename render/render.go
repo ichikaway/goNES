@@ -42,7 +42,7 @@ func (this Renderer) Render(data ppu.RenderingData) {
 	}
 
 	if data.IsSetSprites() {
-		//$this->renderSprites($data->sprites, $data->palette);
+		this.renderSprites(data.Sprites, data.Palette, data.Background)
 	}
 
 	//$this->canvas->draw($this->frameBuffer);
@@ -74,6 +74,70 @@ func (this Renderer) renderTile(tile ppu.Tile, tileX int, tileY int, palette []b
 				this.FrameBuffer[index+1] = color[1]
 				this.FrameBuffer[index+2] = color[2]
 				this.FrameBuffer[index+2] = 0xFF
+			}
+		}
+	}
+}
+
+func (this Renderer) renderSprites(sprites []ppu.SpriteWithAttribute, palette []byte, background ppu.Background) {
+	for _, sprite := range sprites {
+		if sprite.IsSet {
+			this.renderSprite(sprite, palette, background)
+		}
+	}
+}
+
+func (this Renderer) shouldPixelHide(x int, y int, background ppu.Background) bool {
+	tileX := x / 8
+	tileY := y / 8
+	backgroundIndex := tileY*33 + tileX
+	sprite := background.Tiles[backgroundIndex].Sprite
+	// NOTE: If background pixel is not transparent, we need to hide sprite.
+	return (sprite[y%8][x%8] % 4) != 0
+
+	/**
+		//rust実装
+        let tile_x = x / 8;
+        let tile_y = y / 8;
+        let background_index = tile_y * 33 + tile_x;
+        let sprite = &background[background_index];
+        // NOTE: If background pixel is not transparent, we need to hide sprite.
+        (sprite.tile.sprite[y % 8][x % 8] % 4) != 0
+	 */
+}
+
+func (this Renderer) renderSprite(sprite ppu.SpriteWithAttribute, palette []byte, background ppu.Background) {
+	isVerticalReverse := (sprite.Attribute & 0x80) == 0x80
+	isHrizontalReverse := (sprite.Attribute & 0x40) == 0x40
+	isLowPriority := (sprite.Attribute & 0x20) == 0x20
+
+	paletteId := sprite.Attribute & 0x03
+	colors := getColors()
+
+	for i := 0; i < 8; i++ {
+		for j := 0; j < 8; j++ {
+			xHrizontal := j
+			if isHrizontalReverse {
+				xHrizontal = 7 - j
+			}
+			yVertical := i
+			if isVerticalReverse {
+				yVertical = 7 - i
+			}
+			x := int(sprite.X) + xHrizontal
+			y := int(sprite.Y) + yVertical
+
+			if isLowPriority && this.shouldPixelHide(x, y, background) {
+				continue
+			}
+
+			if sprite.SpriteArry[i][j] != 0 {
+				colorId := palette[(paletteId*4)+sprite.SpriteArry[i][j]+0x10]
+				color := colors[colorId]
+				index := (x + y*0x100) * 4
+				this.FrameBuffer[index] = color[0]
+				this.FrameBuffer[index+1] = color[1]
+				this.FrameBuffer[index+2] = color[2]
 			}
 		}
 	}
