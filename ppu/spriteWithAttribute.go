@@ -6,6 +6,7 @@ type SpriteWithAttribute struct {
 	Y          byte
 	Attribute  byte
 	SpriteId   byte
+	IsSet      bool //Spriteがセットされているか判定するgoNes独自パラメータ
 }
 
 func NewStripeWithAttribute(sprite Sprite, x byte, y byte, attribute byte, spriteId byte) SpriteWithAttribute {
@@ -15,5 +16,6 @@ func NewStripeWithAttribute(sprite Sprite, x byte, y byte, attribute byte, sprit
 		Y:          y,
 		Attribute:  attribute,
 		SpriteId:   spriteId,
+		IsSet:      true,
 	}
 }
