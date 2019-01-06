@@ -7,6 +7,7 @@ import (
 	"goNES/cpubus"
 	"goNES/dma"
 	"goNES/ppu"
+	"goNES/render"
 )
 
 type Rom struct {
@@ -69,6 +70,10 @@ func (nes *Nes) frame() {
 		cycle += nes.Cpu.Run()
 
 		if nes.Ppu.Run(cycle * 3) {
+			renderer := render.NewRenderer()
+			renderer.Render(nes.Ppu.RenderingData)
+			break
+			//fmt.Println(renderer)
 			//fmt.Println(nes.Ppu.RenderingData)
 			//panic("")
 		}
