@@ -1,7 +1,12 @@
 package render
 
 import (
+	"fmt"
 	"goNES/ppu"
+	"image"
+	"image/color"
+	"image/png"
+	"os"
 )
 
 type Renderer struct {
@@ -35,7 +40,34 @@ func getColors() [64][3]byte {
 	return colors
 }
 
-func (this Renderer) Render(data ppu.RenderingData) {
+func (this Renderer) drawPng() {
+	width := 256
+	height := 224
+
+	img := image.NewRGBA(image.Rect(0,0, width, height))
+
+	for y := 0; y < height; y++ {
+		for x := 0; x < width; x++ {
+			index := (x + (y * 0x100)) * 4
+
+			color := color.RGBA{
+				this.FrameBuffer[index],
+				this.FrameBuffer[index + 1],
+				this.FrameBuffer[index + 2],
+				255,
+			}
+			img.Set(x, y, color)
+		}
+	}
+
+
+	file, _ := os.Create("output.png")
+	defer file.Close()
+	if err := png.Encode(file, img); err != nil {
+		panic(err)
+	}
+}
+
 
 	if data.IsSetBackground() {
 		this.renderBackground(data.Background, data.Palette)
