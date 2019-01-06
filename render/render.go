@@ -97,17 +97,21 @@ func (this *Renderer) renderTile(tile ppu.Tile, tileX int, tileY int, palette []
 	colors := getColors()
 	for i := 0; i < 8; i++ {
 		for j := 0; j < 8; j++ {
-			paletteIndex := (tile.PaletteId * 4) + int(tile.Sprite[i][j])
-			colorId := palette[paletteIndex]
+			//paletteIndex := (tile.PaletteId * 4) + int(tile.Sprite[i][j])
+			//colorId := palette[paletteIndex]
+
+			//let color_id = bg.tile.palette[bg.tile.sprite[i][j] as usize];
+			colorId := palette[tile.Sprite[i][j]]
+
 			color := colors[colorId]
 			x := tileX + j - offsetX
 			y := tileY + i - offsetY
-			if x >= 0 && 0xFF >= x && y >= 0 && y < 244 {
+			if x >= 0 && 0xFF >= x && y >= 0 && y < 224 {
 				index := (x + (y * 0x100)) * 4
 				this.FrameBuffer[index] = color[0]
 				this.FrameBuffer[index+1] = color[1]
 				this.FrameBuffer[index+2] = color[2]
-				this.FrameBuffer[index+2] = 0xFF
+				this.FrameBuffer[index+3] = 0xFF
 			}
 		}
 	}
