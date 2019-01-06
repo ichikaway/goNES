@@ -421,7 +421,7 @@ func (this *Ppu) buildBackground() {
 	}
 	// background of a line.
 	// Build viewport + 1 tile for background scroll.
-	for x := 0 ; x < 32 + 1 ; x = (x+1) | 0 {
+	for x := 0 ; x < 32 + 1 ; x = (x+1) {
 		tileX := x + this.scrollTileX()
 		clampedTileX := tileX % 32
 		nameTableId := ((tileX / 32) % 2) + tableIdOffset
