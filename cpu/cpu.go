@@ -1,6 +1,7 @@
 package cpu
 
 import (
+	"fmt"
 	"goNES/cpu/registers"
 	"goNES/cpu_interrupts"
 	"goNES/cpubus"
@@ -550,6 +551,8 @@ func (this *Cpu) execInstruction(opecode int, data uint16, mode int) {
 	case RRA:
 		return
 	default:
+		fmt.Println("opecode: ", opecode)
+		printOpecode(opecode)
 		panic("no instruction!")
 	}
 
@@ -598,6 +601,7 @@ func (cpu *Cpu) Run() int {
 	}
 
 	opcode := cpu.fetchByte()
+	//fmt.Println(opcode)
 	opc := cpu.Opcode[opcode]
 	//fmt.Println(opc)
 	data, additionalCycle := cpu.getAddrOrDataWithAdditionalCycle(opc.mode)
