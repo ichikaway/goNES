@@ -78,7 +78,8 @@ func (this *Renderer) Render(data ppu.RenderingData) {
 		this.renderSprites(data.Sprites, data.Palette, data.Background)
 	}
 
-	//$this->canvas->draw($this->frameBuffer);
+
+	this.drawPng()
 }
 
 func (this *Renderer) renderBackground(background ppu.Background, palette []byte) {
