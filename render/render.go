@@ -68,6 +68,7 @@ func (this Renderer) drawPng() {
 	}
 }
 
+func (this *Renderer) Render(data ppu.RenderingData) {
 
 	if data.IsSetBackground() {
 		this.renderBackground(data.Background, data.Palette)
@@ -80,7 +81,7 @@ func (this Renderer) drawPng() {
 	//$this->canvas->draw($this->frameBuffer);
 }
 
-func (this Renderer) renderBackground(background ppu.Background, palette []byte) {
+func (this *Renderer) renderBackground(background ppu.Background, palette []byte) {
 	tiles := background.Tiles
 	for i := 0; i < len(tiles); i++ {
 		x := (i % 33) * 8
@@ -89,7 +90,7 @@ func (this Renderer) renderBackground(background ppu.Background, palette []byte)
 	}
 }
 
-func (this Renderer) renderTile(tile ppu.Tile, tileX int, tileY int, palette []byte) {
+func (this *Renderer) renderTile(tile ppu.Tile, tileX int, tileY int, palette []byte) {
 	offsetX := int(tile.Scroll_x) % 8
 	offsetY := int(tile.Scroll_y) % 8
 	colors := getColors()
@@ -111,7 +112,7 @@ func (this Renderer) renderTile(tile ppu.Tile, tileX int, tileY int, palette []b
 	}
 }
 
-func (this Renderer) renderSprites(sprites []ppu.SpriteWithAttribute, palette []byte, background ppu.Background) {
+func (this *Renderer) renderSprites(sprites []ppu.SpriteWithAttribute, palette []byte, background ppu.Background) {
 	for _, sprite := range sprites {
 		if sprite.IsSet {
 			this.renderSprite(sprite, palette, background)
@@ -138,7 +139,7 @@ func (this Renderer) shouldPixelHide(x int, y int, background ppu.Background) bo
 	 */
 }
 
-func (this Renderer) renderSprite(sprite ppu.SpriteWithAttribute, palette []byte, background ppu.Background) {
+func (this *Renderer) renderSprite(sprite ppu.SpriteWithAttribute, palette []byte, background ppu.Background) {
 	isVerticalReverse := (sprite.Attribute & 0x80) == 0x80
 	isHrizontalReverse := (sprite.Attribute & 0x40) == 0x40
 	isLowPriority := (sprite.Attribute & 0x20) == 0x20
