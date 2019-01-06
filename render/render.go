@@ -69,26 +69,65 @@ func (this Renderer) drawPng() {
 }
 
 func (this *Renderer) Render(data ppu.RenderingData) {
+	//fmt.Println("tiles num:" , len(data.Background.Tiles))
+	//fmt.Println("palette:" , data.Palette)
+
+	//for i := range this.FrameBuffer {
+	//	this.FrameBuffer[i] = 200
+	//}
 
 	if data.IsSetBackground() {
 		this.renderBackground(data.Background, data.Palette)
 	}
 
 	if data.IsSetSprites() {
+		//fmt.Println(data.Sprites)
 		this.renderSprites(data.Sprites, data.Palette, data.Background)
 	}
 
+	/*
+	fmt.Println("count: ",len(this.FrameBuffer))
+	for index, d := range this.FrameBuffer {
+		if d != 0 && d != 5 && d != 255{
+			fmt.Println("index:", index, "data:",d)
+		}
+	}
+	panic("")
+	*/
 
 	this.drawPng()
 }
 
 func (this *Renderer) renderBackground(background ppu.Background, palette []byte) {
 	tiles := background.Tiles
+	//fmt.Println(tiles)
+	for i,tile := range tiles {
+		x := (i % 33) * 8
+		y := (i / 33) * 8
+
+		/*
+		flag := false
+		for i := 0; i < 8; i++ {
+			for j := 0; j < 8; j++ {
+				if tile.Sprite[i][j] != 0 {
+					flag = true
+				}
+			}
+		}
+		if flag {
+			fmt.Println("i:",i, " x:",x, " y:", y)
+		}
+		*/
+
+		this.renderTile(tile, x, y, palette)
+	}
+	/*
 	for i := 0; i < len(tiles); i++ {
 		x := (i % 33) * 8
 		y := (i / 33) * 8
 		this.renderTile(tiles[i], x, y, palette)
 	}
+	*/
 }
 
 func (this *Renderer) renderTile(tile ppu.Tile, tileX int, tileY int, palette []byte) {
@@ -108,6 +147,15 @@ func (this *Renderer) renderTile(tile ppu.Tile, tileX int, tileY int, palette []
 			y := tileY + i - offsetY
 			if x >= 0 && 0xFF >= x && y >= 0 && y < 224 {
 				index := (x + (y * 0x100)) * 4
+				//fmt.Println(color)
+				//fmt.Println("index:", index)
+				/*
+				for _, cl := range color {
+					if cl != 5 {
+						//fmt.Println("cl:", cl, "")
+					}
+				}
+				*/
 				this.FrameBuffer[index] = color[0]
 				this.FrameBuffer[index+1] = color[1]
 				this.FrameBuffer[index+2] = color[2]
@@ -119,6 +167,7 @@ func (this *Renderer) renderTile(tile ppu.Tile, tileX int, tileY int, palette []
 
 func (this *Renderer) renderSprites(sprites []ppu.SpriteWithAttribute, palette []byte, background ppu.Background) {
 	for _, sprite := range sprites {
+		//fmt.Println(sprite)
 		if sprite.IsSet {
 			this.renderSprite(sprite, palette, background)
 		}
@@ -149,9 +198,8 @@ func (this *Renderer) renderSprite(sprite ppu.SpriteWithAttribute, palette []byt
 	isHrizontalReverse := (sprite.Attribute & 0x40) == 0x40
 	isLowPriority := (sprite.Attribute & 0x20) == 0x20
 
-	paletteId := sprite.Attribute & 0x03
+	//paletteId := sprite.Attribute & 0x03
 	colors := getColors()
-
 	for i := 0; i < 8; i++ {
 		for j := 0; j < 8; j++ {
 			xHrizontal := j
@@ -170,9 +218,11 @@ func (this *Renderer) renderSprite(sprite ppu.SpriteWithAttribute, palette []byt
 			}
 
 			if sprite.SpriteArry[i][j] != 0 {
-				colorId := palette[(paletteId*4)+sprite.SpriteArry[i][j]+0x10]
+				//colorId := palette[(paletteId*4)+sprite.SpriteArry[i][j]+0x10]
+				colorId := palette[sprite.SpriteArry[i][j]]
+				fmt.Println(colorId)
 				color := colors[colorId]
-				index := (x + y*0x100) * 4
+				index := (x + (y * 0x100)) * 4
 				this.FrameBuffer[index] = color[0]
 				this.FrameBuffer[index+1] = color[1]
 				this.FrameBuffer[index+2] = color[2]
