@@ -458,10 +458,12 @@ func (this *Ppu) buildSprites() {
 
 	for i := 0 ; i < SPRITES_NUMBER ; i = (i+4)  {
 		// INFO: Offset sprite Y position, because First and last 8line is not rendered.
+
 		y := this.SpriteRam.Read(uint16(i))
-		if !(y >= 8 && y < 224) {
+		if y < 8 {
 			return
 		}
+
 		spriteId := this.SpriteRam.Read(uint16(i+1))
 		attr := this.SpriteRam.Read(uint16(i+2))
 		x := this.SpriteRam.Read(uint16(i+3))
