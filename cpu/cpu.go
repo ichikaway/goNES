@@ -601,7 +601,7 @@ func (cpu *Cpu) Run() int {
 	}
 
 	opcode := cpu.fetchByte()
-	//fmt.Println(opcode)
+	//fmt.Println("ope: ", opcode)
 	opc := cpu.Opcode[opcode]
 	//fmt.Println(opc)
 	data, additionalCycle := cpu.getAddrOrDataWithAdditionalCycle(opc.mode)
@@ -613,6 +613,8 @@ func (cpu *Cpu) Run() int {
 	if cpu.HasBranched {
 		cycle++
 	}
+
+	//fmt.Println(cpu.Registers.GetPc())
 
 	return cycle
 }
