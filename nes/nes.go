@@ -61,8 +61,8 @@ func (nes *Nes) Load() {
 }
 
 func (nes *Nes) frame() {
-	cycle := 0
 	for {
+		cycle := 0
 		if nes.Dma.IsDmaProcessing() {
 			nes.Dma.RunDma()
 			cycle = 514
