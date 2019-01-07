@@ -40,6 +40,27 @@ func getColors() [64][3]byte {
 	return colors
 }
 
+func (this Renderer) drawDot() {
+	width := 256
+	height := 224
+
+
+	for y := 0; y < height; y++ {
+		for x := 0; x < width; x++ {
+			index := (x + (y * 0x100)) * 4
+
+			for i := 0 ; i < 3 ; i++ {
+				if this.FrameBuffer[index + i] >= 128 {
+					fmt.Print(".")
+				} else {
+					fmt.Print(" ")
+				}
+			}
+		}
+		fmt.Print("\n")
+	}
+}
+
 func (this Renderer) drawPng() {
 	width := 256
 	height := 224
@@ -96,6 +117,7 @@ func (this *Renderer) Render(data ppu.RenderingData) {
 	*/
 
 	this.drawPng()
+	//this.drawDot()
 }
 
 func (this *Renderer) renderBackground(background ppu.Background, palette []byte) {
