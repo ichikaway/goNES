@@ -306,7 +306,7 @@ func (this *Cpu) execInstruction(opecode int, data uint16, mode int) {
 		acc := this.Registers.A
 
 		this.Registers.P.Negative = registers.UpdateNegativeBy(val)
-		this.Registers.P.Zero = registers.UpdateZeroBy(val & acc)
+		this.Registers.P.Zero = registers.UpdateZeroBy(acc & val)
 		this.Registers.P.Overflow = (val & 0x40) == 0x40
 	case CMP:
 		this.compare(data, mode, this.Registers.A)
