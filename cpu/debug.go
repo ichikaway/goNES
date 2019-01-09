@@ -24,9 +24,8 @@ func printAddressingMode(mode int) {
 	fmt.Println("debug mode: ", list[mode], " , int: " ,mode)
 }
 
-func printOpecode(opecode int) {
-
-	ope := [...]string{
+func getOpecodeName(opecode int) string {
+		ope := [...]string{
 		"LDA",
 		"LDX",
 		"LDY",
@@ -92,5 +91,11 @@ func printOpecode(opecode int) {
 		"SRE",
 		"RRA",
 	}
-	fmt.Println("debug opecode: ", ope[opecode], " , int: " ,opecode)
+	return ope[opecode]
+}
+
+func printOpecode(opecode int) {
+
+
+	fmt.Println("debug opecode: ", getOpecodeName(opecode), " , int: " ,opecode)
 }
