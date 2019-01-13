@@ -334,7 +334,7 @@ func (this *Cpu) execInstruction(opecode int, data uint16, mode int) {
 		if mode != Immediate {
 			val = this.read(data)
 		}
-		computed := this.Registers.X ^ val
+		computed := this.Registers.A ^ val
 		this.Registers.P.Negative = registers.UpdateNegativeBy(computed)
 		this.Registers.P.Zero = registers.UpdateZeroBy(computed)
 		this.Registers.A = computed
