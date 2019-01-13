@@ -67,7 +67,7 @@ func (cpu *Cpu) push(data byte) {
 
 func (cpu *Cpu) pop() byte {
 	cpu.Registers.SP++
-	addr := uint16(0x0100 | uint16(cpu.Registers.SP&0xFF))
+	addr := 0x0100 | uint16(cpu.Registers.SP)
 	return cpu.read(addr)
 }
 
