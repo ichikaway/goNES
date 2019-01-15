@@ -2,6 +2,7 @@ package render
 
 import (
 	"fmt"
+	"github.com/nsf/termbox-go"
 	"goNES/ppu"
 	"image"
 	"image/color"
@@ -40,10 +41,24 @@ func getColors() [64][3]byte {
 	return colors
 }
 
+
+
 func (this Renderer) drawDot() {
+	err := termbox.Init()
+	if err != nil {
+		panic(err)
+	}
+	defer termbox.Close()
+	color := termbox.ColorDefault
+	backgroundColor := termbox.ColorDefault
+
+	termbox.Clear(color, backgroundColor)
+
 	width := 256
 	height := 224
 
+
+	runes := []rune(". ")
 
 	for y := 0; y < height; y++ {
 		for x := 0; x < width; x++ {
@@ -51,14 +66,20 @@ func (this Renderer) drawDot() {
 
 			for i := 0 ; i < 3 ; i++ {
 				if this.FrameBuffer[index + i] >= 128 {
-					fmt.Print(".")
+					termbox.SetCell(x, y, runes[0], color, backgroundColor)
+					//fmt.Print(".")
 				} else {
-					fmt.Print(" ")
+					termbox.SetCell(x, y, runes[1], color, backgroundColor)
+					//fmt.Print(" ")
 				}
 			}
 		}
-		fmt.Print("\n")
+		//fmt.Print("\n")
 	}
+
+
+	termbox.Flush()
+	os.Exit(1)
 }
 
 func (this Renderer) drawPng() {
@@ -117,7 +138,7 @@ func (this *Renderer) Render(data ppu.RenderingData) {
 	*/
 
 	this.drawPng()
-	//this.drawDot()
+	this.drawDot()
 }
 
 func (this *Renderer) renderBackground(background ppu.Background, palette []byte) {
