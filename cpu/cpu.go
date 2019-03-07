@@ -161,8 +161,8 @@ func (cpu *Cpu) getAddrOrDataWithAdditionalCycle(mode int) (uint16, int){
 		}
 		return (addr + uint16(cpu.Registers.Y)) & 0xFFFF, cycle
 	case PreIndexedIndirect:
-		baseAddr := uint16(cpu.fetchByte() + cpu.Registers.X) & 0xFF
-		addr := (uint16(cpu.CpuBus.ReadByCpu(baseAddr)) + uint16(cpu.CpuBus.ReadByCpu(baseAddr+1)) & 0xFF) << 8
+		baseAddr := uint16((cpu.fetchByte() + cpu.Registers.X) & 0xFF)
+		addr := uint16(cpu.CpuBus.ReadByCpu(baseAddr)) + (uint16(cpu.CpuBus.ReadByCpu((baseAddr + 1) & 0xFF)) << 8)
 		cycle := 0
 		if (addr & 0xFF00) != (baseAddr & 0xFF00) {
 			cycle = 1
@@ -170,7 +170,7 @@ func (cpu *Cpu) getAddrOrDataWithAdditionalCycle(mode int) (uint16, int){
 		return addr & 0xFFFF, cycle
 	case PostIndexedIndirect:
 		data := uint16(cpu.fetchByte())
-		baseAddr := uint16(cpu.CpuBus.ReadByCpu(data)) + uint16(cpu.CpuBus.ReadByCpu(data + 1)) & 0x00FF
+		baseAddr := uint16(cpu.CpuBus.ReadByCpu(data)) + (uint16(cpu.CpuBus.ReadByCpu((data + 1) & 0x00FF)) * 0x100)
 		addr := baseAddr + uint16(cpu.Registers.Y)
 		cycle := 0
 		if (addr & 0xFF00) != (baseAddr & 0xFF00) {
