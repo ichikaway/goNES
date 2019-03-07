@@ -121,9 +121,9 @@ func (cpu *Cpu) processNmi() {
 func (cpu *Cpu) getAddrOrDataWithAdditionalCycle(mode int) (uint16, int){
 	switch mode {
 	case Accumulator:
-		return 0x00, 0
+		return 0x0000, 0
 	case Implied:
-		return 0x00, 0
+		return 0x0000, 0
 	case Immediate:
 		return uint16(cpu.fetchByte()), 0
 	case Relative:
