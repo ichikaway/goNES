@@ -1,6 +1,7 @@
 package nes
 
 import (
+	"github.com/nsf/termbox-go"
 	"goNES/bus"
 	"goNES/cpu"
 	"goNES/cpu_interrupts"
@@ -61,6 +62,7 @@ func (nes *Nes) Load() {
 }
 
 func (nes *Nes) frame() {
+
 	for {
 		cycle := 0
 		if nes.Dma.IsDmaProcessing() {
@@ -89,7 +91,14 @@ func (nes *Nes) frame() {
 }
 
 func (nes Nes) Start() {
+	err := termbox.Init()
+	if err != nil {
+		panic(err)
+	}
+	defer termbox.Close()
+
 	for {
 		nes.frame()
 	}
 }
+

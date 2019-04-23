@@ -8,6 +8,7 @@ import (
 	"image/color"
 	"image/png"
 	"os"
+	"time"
 )
 
 type Renderer struct {
@@ -42,25 +43,32 @@ func getColors() [64][3]byte {
 }
 
 
+func drawLine(x, y int, str string) {
+	color := termbox.ColorDefault
+	backgroundColor := termbox.ColorDefault
+	runes := []rune(str)
+
+	for i := 0; i < len(runes); i += 1 {
+		termbox.SetCell(x+i, y, runes[i], color, backgroundColor)
+	}
+}
 
 func (this Renderer) drawDot() {
-	err := termbox.Init()
-	if err != nil {
-		panic(err)
-	}
-	defer termbox.Close()
+
 	color := termbox.ColorDefault
 	backgroundColor := termbox.ColorDefault
 
 	termbox.Clear(color, backgroundColor)
 
+	drawLine(0, 0, "Press ESC to exit." + string("aa"))
+	drawLine(2, 1, fmt.Sprintf("date: %v", time.Now()))
+
 	width := 256
 	height := 224
 
-
 	runes := []rune(". ")
 
-	for y := 0; y < height; y++ {
+	for y := 2; y < height; y++ {
 		for x := 0; x < width; x++ {
 			index := (x + (y * 0x100)) * 4
 
@@ -77,9 +85,8 @@ func (this Renderer) drawDot() {
 		//fmt.Print("\n")
 	}
 
-
 	termbox.Flush()
-	os.Exit(1)
+	time.Sleep(1000)
 }
 
 func (this Renderer) drawPng() {
@@ -137,7 +144,7 @@ func (this *Renderer) Render(data ppu.RenderingData) {
 	panic("")
 	*/
 
-	this.drawPng()
+	//this.drawPng()
 	this.drawDot()
 }
 
