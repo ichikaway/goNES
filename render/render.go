@@ -43,6 +43,50 @@ func getColors() [64][3]byte {
 }
 
 
+
+
+func (this Renderer) drawBraille() {
+
+	color := termbox.ColorDefault
+	backgroundColor := termbox.ColorDefault
+
+	termbox.Clear(color, backgroundColor)
+
+	//drawLine(0, 0, "Press ESC to exit." + string("aa"))
+	//drawLine(2, 1, fmt.Sprintf("date: %v", time.Now()))
+
+	width := 256
+	height := 224
+
+	positionY := 0
+	for by := 0 ; by < height ; by += 4 {
+		positionX := 0
+
+		for bx := 0 ; bx < width ; bx += 2 {
+			braille := NewBraille()
+			for y := 0; y < 4; y++ {
+				for x := 0; x < 2; x++ {
+					index := (bx+x + ((by+y) * 0x100)) * 4
+					//fmt.Println(index)
+					black := 1
+					for i := 0 ; i < 3 ; i++ {
+						if this.FrameBuffer[index + i] >= 128 {
+							black = 0
+						}
+					}
+					braille[x][y] = black
+				}
+			}
+			//fmt.Println("x:", positionX, " y:" , positionY)
+			termbox.SetCell(positionX, positionY, braille.Rune(), color, backgroundColor)
+			positionX++
+		}
+		positionY++
+	}
+
+	termbox.Flush()
+}
+
 func drawLine(x, y int, str string) {
 	color := termbox.ColorDefault
 	backgroundColor := termbox.ColorDefault
@@ -71,6 +115,8 @@ func (this Renderer) drawDot() {
 	for y := 2; y < height; y++ {
 		for x := 0; x < width; x++ {
 			index := (x + (y * 0x100)) * 4
+
+			fmt.Println(index)
 
 			runeVal := runes[1]
 			for i := 0 ; i < 3 ; i++ {
@@ -141,7 +187,8 @@ func (this *Renderer) Render(data ppu.RenderingData) {
 	*/
 
 	//this.drawPng()
-	this.drawDot()
+	//this.drawDot()
+	this.drawBraille()
 }
 
 func (this *Renderer) renderBackground(background ppu.Background, palette []byte) {
