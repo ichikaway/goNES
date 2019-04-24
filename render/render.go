@@ -72,21 +72,17 @@ func (this Renderer) drawDot() {
 		for x := 0; x < width; x++ {
 			index := (x + (y * 0x100)) * 4
 
+			runeVal := runes[1]
 			for i := 0 ; i < 3 ; i++ {
 				if this.FrameBuffer[index + i] >= 128 {
-					termbox.SetCell(x, y, runes[0], color, backgroundColor)
-					//fmt.Print(".")
-				} else {
-					termbox.SetCell(x, y, runes[1], color, backgroundColor)
-					//fmt.Print(" ")
+					runeVal = runes[0]
 				}
 			}
+			termbox.SetCell(x, y, runeVal, color, backgroundColor)
 		}
-		//fmt.Print("\n")
 	}
 
 	termbox.Flush()
-	time.Sleep(1000)
 }
 
 func (this Renderer) drawPng() {
