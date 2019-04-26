@@ -359,7 +359,7 @@ func (this *Ppu) Run(cpuCycle int) bool {
 	if cycle < CYCLES_PER_LINE {
 		return false
 	}
-
+//fmt.Println("cycle: ", cycle, " line: ", this.Line)
 	if this.Line == 0 {
 		this.Background.Clear()
 		this.buildSprites()

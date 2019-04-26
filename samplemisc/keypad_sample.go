@@ -44,6 +44,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	defer termbox.Close()
 
 	keyCh := make(chan termbox.Key)
 	go keyEvent(keyCh)
@@ -62,6 +63,7 @@ func main() {
 				fmt.Println(key)
 				break
 			default:
+				//fmt.Println("---")
 				break
 		}
 	}

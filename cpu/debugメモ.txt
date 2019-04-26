@@ -1,0 +1,28 @@
+goNEs
+51902  opcode:  JSR  addr:  49566  mode:  4
+49568  opcode:  LDY  addr:  0  mode:  0
+49570  opcode:  LDX  addr:  0  mode:  0
+49573  opcode:  JSR  addr:  49557  mode:  4
+49559  opcode:  LDA  addr:  440  mode:  11   //ここのaddrが違う
+49561  opcode:  INC  addr:  0  mode:  1
+49563  opcode:  BNE  addr:  49565  mode:  2
+49566  opcode:  RTS  addr:  0  mode:  3
+
+
+php
+51902 opcode: JSR addr: 49566 mode: absolute
+49568 opcode: LDY addr: 0 mode: immediate
+49570 opcode: LDX addr: 0 mode: immediate
+49573 opcode: JSR addr: 49557 mode: absolute
+49559 opcode: LDA addr: 61640 mode: postIndexedIndirect
+49561 opcode: INC addr: 0 mode: zeroPage
+49563 opcode: BNE addr: 49565 mode: relative
+49566 opcode: RTS addr: 0 mode: implied
+49576 opcode: STA addr: 517 mode: absoluteX
+49577 opcode: INX addr: 0 mode: implied
+
+
+
+
+1111000011001000%                                                                                                                                                                    ➜  ~  php -r 'printf("%b", 440);'
+       110111000%

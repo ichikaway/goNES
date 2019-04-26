@@ -305,6 +305,7 @@ func (this *Cpu) execInstruction(opecode int, data uint16, mode int) {
 		val := this.read(data)
 		acc := this.Registers.A
 
+		//fmt.Println("BIT read data: ", val)
 		this.Registers.P.Negative = registers.UpdateNegativeBy(val)
 		this.Registers.P.Zero = registers.UpdateZeroBy(acc & val)
 		this.Registers.P.Overflow = (val & 0x40) == 0x40
@@ -458,8 +459,11 @@ func (this *Cpu) execInstruction(opecode int, data uint16, mode int) {
 		this.push(uint8(pc))
 		this.Registers.PC = data
 	case RTS:
+		//fmt.Println(this.Registers.PC)
 		this.popPc()
+		//fmt.Println(this.Registers.PC)
 		this.Registers.IncrementPc()
+		//fmt.Println(this.Registers.PC)
 	case RTI:
 		this.popStatus()
 		this.popPc()
@@ -594,9 +598,11 @@ func (cpu *Cpu) Run() int {
 	//fmt.Println("run Pc: ", cpu.Registers.PC)
 
 	if cpu.Interrupts.IsNmiAssert() {
+		fmt.Println("ProcessNmi()")
 		cpu.processNmi()
 	}
 	if cpu.Interrupts.IsIrqAssert() {
+		fmt.Println("ProcessIRQ()")
 		cpu.processIrq()
 	}
 
@@ -607,6 +613,8 @@ func (cpu *Cpu) Run() int {
 	data, additionalCycle := cpu.getAddrOrDataWithAdditionalCycle(opc.mode)
 	//fmt.Println(data, additionalCycle)
 
+	//fmt.Println(cpu.Registers.GetPc(), " opcode: ", getOpecodeName(opc.name), " addr: ", data, " mode: ", opc.mode)
+
 	cpu.execInstruction(opc.name, data, opc.mode)
 
 	cycle := opc.cycle + additionalCycle
@@ -614,7 +622,6 @@ func (cpu *Cpu) Run() int {
 		cycle++
 	}
 
-	//fmt.Println(cpu.Registers.GetPc())
 
 	return cycle
 }
