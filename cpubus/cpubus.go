@@ -51,8 +51,10 @@ func NewCpuBus(ram bus.Ram, programRom bus.Rom, ppu ppu.Ppu, dma dma.Dma) CpuBus
 
 func (this CpuBus) ReadByCpu(addr uint16) byte {
 	switch {
-	case 0x0000 <= addr && addr <= 0x1FFF:
+	case 0x0000 <= addr && addr < 0x0800:
 		return this.Ram.Read(addr)
+	case 0x0800 <= addr && addr <= 0x1FFF:
+		return this.Ram.Read(addr - 0x0800)
 	case 0x2000 <= addr && addr <= 0x3FFF:
 		return this.Ppu.Read(addr - 0x2000)
 	case addr == 0x4016:
@@ -82,8 +84,10 @@ func (this CpuBus) ReadByCpu(addr uint16) byte {
 
 func (this *CpuBus) WriteByCpu(addr uint16, data byte) {
 	switch {
-	case 0x0000 <= addr && addr <= 0x1FFF:
-		this.Ram.Write(addr&0x07FF, data)
+	case 0x0000 <= addr && addr < 0x0800:
+		this.Ram.Write(addr, data)
+	case 0x0800 <= addr && addr <= 0x1FFF:
+		this.Ram.Write(addr - 0x0800, data)
 	case 0x2000 <= addr && addr <= 0x3FFF:
 		this.Ppu.Write(addr-0x2000, data)
 	case addr == 0x4014:
