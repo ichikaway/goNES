@@ -75,18 +75,8 @@ func (nes *Nes) frame() {
 			renderer := render.NewRenderer()
 			renderer.Render(nes.Ppu.RenderingData)
 			break
-			//fmt.Println(renderer)
-			//fmt.Println(nes.Ppu.RenderingData)
-			//panic("")
 		}
 
-		/* todo
-            if ($renderingData) {
-                $this->cpu->bus->keypad->fetch();
-                $this->renderer->render($renderingData);
-                break;
-            }
-		 */
 	}
 }
 
