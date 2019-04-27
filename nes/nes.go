@@ -9,7 +9,11 @@ import (
 	"goNES/dma"
 	"goNES/ppu"
 	"goNES/render"
+	"os"
+	"sync"
 )
+
+var mu sync.Mutex
 
 type Rom struct {
 	ProgramRom         []byte
@@ -61,9 +65,24 @@ func (nes *Nes) Load() {
 	nes.Cpu.Reset()
 }
 
-func (nes *Nes) frame() {
+func (nes *Nes) frame(keyCh chan termbox.Key) {
 
 	for {
+		select {
+		case key := <-keyCh:
+			mu.Lock()
+			switch key {
+			case termbox.KeyEsc, termbox.KeyCtrlC: //終了
+				mu.Unlock()
+				os.Exit(0)
+			}
+			mu.Unlock()
+			//fmt.Println(key)
+			break
+		default:
+			break
+		}
+
 		cycle := 0
 		if nes.Dma.IsDmaProcessing() {
 			nes.Dma.RunDma()
@@ -76,7 +95,16 @@ func (nes *Nes) frame() {
 			renderer.Render(nes.Ppu.RenderingData)
 			break
 		}
+	}
+}
 
+func keyEvent(kch chan termbox.Key) {
+	for {
+		switch ev := termbox.PollEvent(); ev.Type {
+		case termbox.EventKey:
+			kch <- ev.Key
+		default:
+		}
 	}
 }
 
@@ -87,8 +115,11 @@ func (nes Nes) Start() {
 	}
 	defer termbox.Close()
 
+	keyCh := make(chan termbox.Key)
+	go keyEvent(keyCh)
+
 	for {
-		nes.frame()
+		nes.frame(keyCh)
 	}
 }
 
