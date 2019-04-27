@@ -68,10 +68,10 @@ func (this Renderer) drawBraille() {
 				for x := 0; x < 2; x++ {
 					index := (bx+x + ((by+y) * 0x100)) * 4
 					//fmt.Println(index)
-					black := 1
+					black := 0
 					for i := 0 ; i < 3 ; i++ {
 						if this.FrameBuffer[index + i] >= 128 {
-							black = 0
+							black = 1
 						}
 					}
 					braille[x][y] = black
