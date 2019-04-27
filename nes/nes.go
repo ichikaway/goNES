@@ -11,6 +11,7 @@ import (
 	"goNES/render"
 	"os"
 	"sync"
+	"time"
 )
 
 var mu sync.Mutex
@@ -65,8 +66,7 @@ func (nes *Nes) Load() {
 	nes.Cpu.Reset()
 }
 
-func (nes *Nes) frame(keyCh chan termbox.Key) {
-
+func (nes *Nes) frame(keyCh chan termbox.Key, frameCount *int, startTime time.Time) {
 	for {
 		select {
 		case key := <-keyCh:
@@ -91,7 +91,8 @@ func (nes *Nes) frame(keyCh chan termbox.Key) {
 		cycle += nes.Cpu.Run()
 
 		if nes.Ppu.Run(cycle * 3) {
-			renderer := render.NewRenderer()
+			*frameCount++
+			renderer := render.NewRenderer(*frameCount, startTime)
 			renderer.Render(nes.Ppu.RenderingData)
 			break
 		}
@@ -118,8 +119,11 @@ func (nes Nes) Start() {
 	keyCh := make(chan termbox.Key)
 	go keyEvent(keyCh)
 
+
+	startTime := time.Now()
+	frameCount := 0
 	for {
-		nes.frame(keyCh)
+		nes.frame(keyCh, &frameCount, startTime)
 	}
 }
 

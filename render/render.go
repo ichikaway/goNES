@@ -4,20 +4,23 @@ import (
 	"fmt"
 	"github.com/nsf/termbox-go"
 	"goNES/ppu"
+	"goNES/util"
 	"image"
 	"image/color"
 	"image/png"
 	"os"
+	"strconv"
 	"time"
 )
 
 type Renderer struct {
 	FrameBuffer [256 * 256 * 4]byte
 	Serial      int
+	StartTime   time.Time
 }
 
-func NewRenderer() Renderer {
-	return Renderer{}
+func NewRenderer(count int, startTime time.Time) Renderer {
+	return Renderer{ Serial: count , StartTime: startTime}
 }
 
 func getColors() [64][3]byte {
@@ -43,22 +46,19 @@ func getColors() [64][3]byte {
 }
 
 
-
-
 func (this Renderer) drawBraille() {
-
 	color := termbox.ColorDefault
 	backgroundColor := termbox.ColorDefault
 
 	termbox.Clear(color, backgroundColor)
 
-	//drawLine(0, 0, "Press ESC to exit." + string("aa"))
-	//drawLine(2, 1, fmt.Sprintf("date: %v", time.Now()))
+	fps := util.GetFps(this.Serial, this.StartTime)
+	drawLine(0, 0, "Press ESC to exit. goNES! FPS:" + strconv.Itoa(fps) )
 
 	width := 256
 	height := 224
 
-	positionY := 0
+	positionY := 1
 	for by := 0 ; by < height ; by += 4 {
 		positionX := 0
 
