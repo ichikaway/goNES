@@ -430,7 +430,7 @@ func (this *Cpu) execInstruction(opecode int, data uint16, mode int) {
 		this.Registers.A = uint8(computed)
 
 		this.Registers.P.Carry = false
-		if computed > 0 {
+		if computed >= 0 {
 			this.Registers.P.Carry = true
 		}
 
