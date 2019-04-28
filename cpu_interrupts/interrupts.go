@@ -5,8 +5,8 @@ type Interrupts struct {
 	Irq bool
 }
 
-func NewInterrupts() Interrupts {
-	return Interrupts{Nmi:false, Irq:false}
+func NewInterrupts() *Interrupts {
+	return &Interrupts{Nmi:false, Irq:false}
 }
 
 func (this Interrupts) IsNmiAssert() bool {

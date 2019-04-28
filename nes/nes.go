@@ -29,7 +29,7 @@ type Nes struct {
 	characterMem bus.Ram
 	ProgramRom   bus.Rom
 	PpuBus       bus.PpuBus
-	Interrupts   cpu_interrupts.Interrupts
+	Interrupts   *cpu_interrupts.Interrupts
 	Dma          dma.Dma
 	Ppu          ppu.Ppu
 	CpuBus       cpubus.CpuBus
@@ -128,6 +128,17 @@ func keyEvent(kch chan termbox.Key) {
 }
 
 func (nes Nes) Start() {
+	/*
+	fmt.Println("nes: ", nes.Interrupts)
+	fmt.Println("cpu: ", nes.Cpu.Interrupts)
+	fmt.Println("ppu: ", nes.Ppu.Interrupts)
+	nes.Interrupts.AssertNmi()
+	fmt.Println("nes: ", nes.Interrupts)
+	fmt.Println("cpu: ", nes.Cpu.Interrupts)
+	fmt.Println("ppu: ", nes.Ppu.Interrupts)
+	os.Exit(1)
+	*/
+
 	err := termbox.Init()
 	if err != nil {
 		panic(err)

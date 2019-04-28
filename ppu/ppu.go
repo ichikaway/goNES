@@ -83,14 +83,14 @@ type Ppu struct {
 	Sprites         []SpriteWithAttribute
     RenderingData   RenderingData
 	Palette           PaletteRam
-	Interrupts        cpu_interrupts.Interrupts
+	Interrupts        *cpu_interrupts.Interrupts
 	IsHrizontalScroll bool
 	ScrollX           byte
 	ScrollY           byte
 	IsHrizontalMirror bool
 }
 
-func NewPpu(ppubus bus.PpuBus, interrupts cpu_interrupts.Interrupts, isHrizontalMirror bool) Ppu {
+func NewPpu(ppubus bus.PpuBus, interrupts *cpu_interrupts.Interrupts, isHrizontalMirror bool) Ppu {
 	ppu := Ppu{
 		Registers:         make([]byte, 8),
 		Cycle:             0,
