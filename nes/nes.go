@@ -1,13 +1,20 @@
 package nes
 
 import (
+	"github.com/nsf/termbox-go"
 	"goNES/bus"
 	"goNES/cpu"
 	"goNES/cpu_interrupts"
 	"goNES/cpubus"
 	"goNES/dma"
 	"goNES/ppu"
+	"goNES/render"
+	"os"
+	"sync"
+	"time"
 )
+
+var mu sync.Mutex
 
 type Rom struct {
 	ProgramRom         []byte
@@ -22,7 +29,7 @@ type Nes struct {
 	characterMem bus.Ram
 	ProgramRom   bus.Rom
 	PpuBus       bus.PpuBus
-	Interrupts   cpu_interrupts.Interrupts
+	Interrupts   *cpu_interrupts.Interrupts
 	Dma          dma.Dma
 	Ppu          ppu.Ppu
 	CpuBus       cpubus.CpuBus
@@ -53,14 +60,17 @@ func (nes *Nes) Load() {
 		nes.ProgramRom,
 		nes.Ppu,
 		nes.Dma,
+		bus.NewKeypad(),
 	)
 
 	nes.Cpu = cpu.NewCpu(nes.CpuBus, nes.Interrupts)
 	nes.Cpu.Reset()
 }
 
-func (nes *Nes) frame() {
+func (nes *Nes) frame(keyCh chan termbox.Key, frameCount *int, startTime time.Time) {
 	for {
+
+
 		cycle := 0
 		if nes.Dma.IsDmaProcessing() {
 			nes.Dma.RunDma()
@@ -68,20 +78,81 @@ func (nes *Nes) frame() {
 		}
 		cycle += nes.Cpu.Run()
 
-		renderingData := nes.Ppu.Run(cycle * 3);
+		if nes.Ppu.Run(cycle * 3) {
+			buttons := [8]bool{}
+			select {
+			case key := <-keyCh:
+				mu.Lock()
+				switch key {
+				case termbox.KeyEsc, termbox.KeyCtrlC: //終了
+					mu.Unlock()
+					os.Exit(0)
+				case termbox.KeyEnter:
+					buttons[bus.ButtonStart] = true
+					nes.CpuBus.Keypad.Update(buttons)
+					break
+				case termbox.KeyDelete:
+					buttons := [8]bool{}
+					nes.CpuBus.Keypad.Update(buttons)
+					break
+				case termbox.KeyArrowDown:
+					buttons[bus.ButtonDown] = true
+					nes.CpuBus.Keypad.Update(buttons)
+					break
+				}
+				mu.Unlock()
+				//fmt.Println(key)
+				break
+			default:
+				nes.CpuBus.Keypad.Update(buttons)
+				break
+			}
 
-		/* todo
-            if ($renderingData) {
-                $this->cpu->bus->keypad->fetch();
-                $this->renderer->render($renderingData);
-                break;
-            }
-		 */
+
+			*frameCount++
+			renderer := render.NewRenderer(*frameCount, startTime)
+			renderer.Render(nes.Ppu.RenderingData)
+			break
+		}
+	}
+}
+
+func keyEvent(kch chan termbox.Key) {
+	for {
+		switch ev := termbox.PollEvent(); ev.Type {
+		case termbox.EventKey:
+			kch <- ev.Key
+		default:
+		}
 	}
 }
 
 func (nes Nes) Start() {
+	/*
+	fmt.Println("nes: ", nes.Interrupts)
+	fmt.Println("cpu: ", nes.Cpu.Interrupts)
+	fmt.Println("ppu: ", nes.Ppu.Interrupts)
+	nes.Interrupts.AssertNmi()
+	fmt.Println("nes: ", nes.Interrupts)
+	fmt.Println("cpu: ", nes.Cpu.Interrupts)
+	fmt.Println("ppu: ", nes.Ppu.Interrupts)
+	os.Exit(1)
+	*/
+
+	err := termbox.Init()
+	if err != nil {
+		panic(err)
+	}
+	defer termbox.Close()
+
+	keyCh := make(chan termbox.Key)
+	go keyEvent(keyCh)
+
+
+	startTime := time.Now()
+	frameCount := 0
 	for {
-		nes.frame()
+		nes.frame(keyCh, &frameCount, startTime)
 	}
 }
+

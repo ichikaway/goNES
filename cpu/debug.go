@@ -4,7 +4,7 @@ import (
 	"fmt"
 )
 
-func printAddressingMode(mode int) {
+func getAddressingMode(mode int) string {
 	list := [...]string{
 		"Immediate",
 		"ZeroPage",
@@ -21,12 +21,16 @@ func printAddressingMode(mode int) {
 		"IndirectAbsolute",
 	}
 
-	fmt.Println("debug mode: ", list[mode], " , int: " ,mode)
+	return list[mode]
 }
 
-func printOpecode(opecode int) {
+func printAddressingMode(mode int) {
 
-	ope := [...]string{
+	fmt.Println("debug mode: ", getAddressingMode(mode), " , int: " ,mode)
+}
+
+func getOpecodeName(opecode int) string {
+		ope := [...]string{
 		"LDA",
 		"LDX",
 		"LDY",
@@ -92,5 +96,11 @@ func printOpecode(opecode int) {
 		"SRE",
 		"RRA",
 	}
-	fmt.Println("debug opecode: ", ope[opecode], " , int: " ,opecode)
+	return ope[opecode]
+}
+
+func printOpecode(opecode int) {
+
+
+	fmt.Println("debug opecode: ", getOpecodeName(opecode), " , int: " ,opecode)
 }

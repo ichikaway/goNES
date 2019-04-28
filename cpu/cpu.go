@@ -6,17 +6,18 @@ import (
 	"goNES/cpu_interrupts"
 	"goNES/cpubus"
 	"goNES/util"
+	"log"
 )
 
 type Cpu struct {
 	CpuBus      cpubus.CpuBus
-	Interrupts  cpu_interrupts.Interrupts
+	Interrupts  *cpu_interrupts.Interrupts
 	Registers   registers.Registers
 	HasBranched bool
 	Opcode      map[byte]Opcode
 }
 
-func NewCpu(cpubus cpubus.CpuBus, interrupts cpu_interrupts.Interrupts) Cpu {
+func NewCpu(cpubus cpubus.CpuBus, interrupts *cpu_interrupts.Interrupts) Cpu {
 
 	return Cpu{
 		CpuBus:      cpubus,
@@ -30,7 +31,7 @@ func NewCpu(cpubus cpubus.CpuBus, interrupts cpu_interrupts.Interrupts) Cpu {
 func (cpu *Cpu) Reset() {
 	cpu.Registers = registers.GetDefaultRegisters()
 	cpu.Registers.PC = cpu.CpuBus.ReadWord(0xFFFC)
-	fmt.Printf("Initialize pc: %04x\n", cpu.Registers.PC)
+	//fmt.Printf("Initialize pc: %04x\n", cpu.Registers.PC)
 }
 
 /**
@@ -47,7 +48,7 @@ func (cpu *Cpu) pushStatus() {
 	cpu.push(status)
 }
 
-func (cpu Cpu) popStatus() {
+func (cpu *Cpu) popStatus() {
 	val := cpu.pop()
 	cpu.Registers.P.Negative = val & 0x80 == 0x80
 	cpu.Registers.P.Overflow = val & 0x40 == 0x40
@@ -67,7 +68,7 @@ func (cpu *Cpu) push(data byte) {
 
 func (cpu *Cpu) pop() byte {
 	cpu.Registers.SP++
-	addr := uint16(0x0100 | uint16(cpu.Registers.SP&0xFF))
+	addr := 0x0100 | uint16(cpu.Registers.SP)
 	return cpu.read(addr)
 }
 
@@ -121,9 +122,9 @@ func (cpu *Cpu) processNmi() {
 func (cpu *Cpu) getAddrOrDataWithAdditionalCycle(mode int) (uint16, int){
 	switch mode {
 	case Accumulator:
-		return 0x00, 0
+		return 0x0000, 0
 	case Implied:
-		return 0x00, 0
+		return 0x0000, 0
 	case Immediate:
 		return uint16(cpu.fetchByte()), 0
 	case Relative:
@@ -161,8 +162,8 @@ func (cpu *Cpu) getAddrOrDataWithAdditionalCycle(mode int) (uint16, int){
 		}
 		return (addr + uint16(cpu.Registers.Y)) & 0xFFFF, cycle
 	case PreIndexedIndirect:
-		baseAddr := uint16(cpu.fetchByte() + cpu.Registers.X) & 0xFF
-		addr := (uint16(cpu.CpuBus.ReadByCpu(baseAddr)) + uint16(cpu.CpuBus.ReadByCpu(baseAddr+1)) & 0xFF) << 8
+		baseAddr := uint16((cpu.fetchByte() + cpu.Registers.X) & 0xFF)
+		addr := uint16(cpu.CpuBus.ReadByCpu(baseAddr)) + (uint16(cpu.CpuBus.ReadByCpu((baseAddr + 1) & 0xFF)) << 8)
 		cycle := 0
 		if (addr & 0xFF00) != (baseAddr & 0xFF00) {
 			cycle = 1
@@ -170,7 +171,7 @@ func (cpu *Cpu) getAddrOrDataWithAdditionalCycle(mode int) (uint16, int){
 		return addr & 0xFFFF, cycle
 	case PostIndexedIndirect:
 		data := uint16(cpu.fetchByte())
-		baseAddr := uint16(cpu.CpuBus.ReadByCpu(data)) + uint16(cpu.CpuBus.ReadByCpu(data + 1)) & 0x00FF
+		baseAddr := uint16(cpu.CpuBus.ReadByCpu(data)) + (uint16(cpu.CpuBus.ReadByCpu((data + 1) & 0x00FF)) * 0x100)
 		addr := baseAddr + uint16(cpu.Registers.Y)
 		cycle := 0
 		if (addr & 0xFF00) != (baseAddr & 0xFF00) {
@@ -190,10 +191,10 @@ func (cpu *Cpu) getAddrOrDataWithAdditionalCycle(mode int) (uint16, int){
 func (this *Cpu) execInstruction(opecode int, data uint16, mode int) {
 	this.HasBranched = false
 
-	fmt.Println("base: ", opecode, "data:", data, "mode:", mode)
-	printOpecode(opecode)
-	printAddressingMode(mode)
-	fmt.Println("data: ", data)
+	//fmt.Println("base: ", opecode, "data:", data, "mode:", mode)
+	//printOpecode(opecode)
+	//printAddressingMode(mode)
+	//fmt.Println("data: ", data)
 
 	switch opecode {
 	case LDA:
@@ -305,8 +306,9 @@ func (this *Cpu) execInstruction(opecode int, data uint16, mode int) {
 		val := this.read(data)
 		acc := this.Registers.A
 
+		//fmt.Println("BIT read data: ", val)
 		this.Registers.P.Negative = registers.UpdateNegativeBy(val)
-		this.Registers.P.Zero = registers.UpdateZeroBy(val & acc)
+		this.Registers.P.Zero = registers.UpdateZeroBy(acc & val)
 		this.Registers.P.Overflow = (val & 0x40) == 0x40
 	case CMP:
 		this.compare(data, mode, this.Registers.A)
@@ -334,7 +336,7 @@ func (this *Cpu) execInstruction(opecode int, data uint16, mode int) {
 		if mode != Immediate {
 			val = this.read(data)
 		}
-		computed := this.Registers.X ^ val
+		computed := this.Registers.A ^ val
 		this.Registers.P.Negative = registers.UpdateNegativeBy(computed)
 		this.Registers.P.Zero = registers.UpdateZeroBy(computed)
 		this.Registers.A = computed
@@ -458,8 +460,11 @@ func (this *Cpu) execInstruction(opecode int, data uint16, mode int) {
 		this.push(uint8(pc))
 		this.Registers.PC = data
 	case RTS:
+		//fmt.Println(this.Registers.PC)
 		this.popPc()
+		//fmt.Println(this.Registers.PC)
 		this.Registers.IncrementPc()
+		//fmt.Println(this.Registers.PC)
 	case RTI:
 		this.popStatus()
 		this.popPc()
@@ -511,10 +516,10 @@ func (this *Cpu) execInstruction(opecode int, data uint16, mode int) {
 	case SED:
 		this.Registers.P.Decimal_mode = true
 	case BRK:
-		fmt.Println("PC1: ",this.Registers.PC)
+		//fmt.Println("PC1: ",this.Registers.PC)
 		interrupt := this.Registers.P.Interrupt
 		this.Registers.IncrementPc()
-		fmt.Println("PC2: ",this.Registers.PC)
+		//fmt.Println("PC2: ",this.Registers.PC)
 		pc := this.Registers.GetPc()
 		this.push(uint8(pc >> 8))
 		this.push(uint8(pc))
@@ -526,7 +531,7 @@ func (this *Cpu) execInstruction(opecode int, data uint16, mode int) {
 			this.Registers.PC = fetched
 		}
 		this.Registers.DecrementPc()
-		fmt.Println("PC3: ",this.Registers.PC)
+		//fmt.Println("PC3: ",this.Registers.PC)
 	case NOP:
 		return
 	//ここから下はunofficialな実装
@@ -551,6 +556,8 @@ func (this *Cpu) execInstruction(opecode int, data uint16, mode int) {
 	case RRA:
 		return
 	default:
+		fmt.Println("opecode: ", opecode)
+		printOpecode(opecode)
 		panic("no instruction!")
 	}
 
@@ -588,21 +595,32 @@ func (this *Cpu) compare(data uint16, mode int, registerVal byte) {
 }
 
 func (cpu *Cpu) Run() int {
-	fmt.Println("------------- CPU run ---------------")
-	fmt.Println("run Pc: ", cpu.Registers.PC)
+	//log.Println("------------- CPU run ---------------")
+	//log.Println("run Pc: ", cpu.Registers.PC)
 
+	//log.Println("cpu Nmi: ", cpu.Interrupts.Nmi)
 	if cpu.Interrupts.IsNmiAssert() {
+		//log.Println("processNmi()")
 		cpu.processNmi()
 	}
 	if cpu.Interrupts.IsIrqAssert() {
+		//log.Println("processIRQ()")
 		cpu.processIrq()
 	}
 
 	opcode := cpu.fetchByte()
+	//fmt.Println("ope: ", opcode)
 	opc := cpu.Opcode[opcode]
-	fmt.Println(opc)
+	//fmt.Println(opc)
 	data, additionalCycle := cpu.getAddrOrDataWithAdditionalCycle(opc.mode)
-	fmt.Println(data, additionalCycle)
+	//fmt.Println(data, additionalCycle)
+
+	log.Println(
+		"PC: ", cpu.Registers.GetPc(),
+		" opcode: ", getOpecodeName(opc.name),
+		" addr: ", data,
+		" mode: ", getAddressingMode(opc.mode),
+		)
 
 	cpu.execInstruction(opc.name, data, opc.mode)
 
@@ -610,6 +628,7 @@ func (cpu *Cpu) Run() int {
 	if cpu.HasBranched {
 		cycle++
 	}
+
 
 	return cycle
 }

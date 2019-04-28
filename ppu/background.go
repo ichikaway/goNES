@@ -1,14 +1,14 @@
 package ppu
 
-type BackgroundCtx struct {
-	tile       []int //仮実装  Tileクラスのスライスを本当は管理する
-	scroll_x   byte
-	scroll_y   byte
-	is_enabled bool
+type Tile struct {
+	Sprite     Sprite
+	Scroll_x   byte
+	Scroll_y   byte
+	PaletteId  int
 }
 
 type Background struct {
-	Vec []BackgroundCtx
+	Tiles []Tile
 }
 
 func NewBackground() Background {
@@ -16,5 +16,5 @@ func NewBackground() Background {
 }
 
 func (this *Background) Clear() {
-	this.Vec = []BackgroundCtx{}
+	this.Tiles = []Tile{}
 }
