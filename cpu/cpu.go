@@ -595,15 +595,16 @@ func (this *Cpu) compare(data uint16, mode int, registerVal byte) {
 }
 
 func (cpu *Cpu) Run() int {
-	//fmt.Println("------------- CPU run ---------------")
-	//fmt.Println("run Pc: ", cpu.Registers.PC)
+	//log.Println("------------- CPU run ---------------")
+	//log.Println("run Pc: ", cpu.Registers.PC)
 
+	log.Println("cpu Nmi: ", cpu.Interrupts.Nmi)
 	if cpu.Interrupts.IsNmiAssert() {
-		fmt.Println("ProcessNmi()")
+		log.Println("processNmi()")
 		cpu.processNmi()
 	}
 	if cpu.Interrupts.IsIrqAssert() {
-		fmt.Println("ProcessIRQ()")
+		log.Println("processIRQ()")
 		cpu.processIrq()
 	}
 
@@ -614,7 +615,12 @@ func (cpu *Cpu) Run() int {
 	data, additionalCycle := cpu.getAddrOrDataWithAdditionalCycle(opc.mode)
 	//fmt.Println(data, additionalCycle)
 
-	//fmt.Println(cpu.Registers.GetPc(), " opcode: ", getOpecodeName(opc.name), " addr: ", data, " mode: ", opc.mode)
+	log.Println(
+		"PC: ", cpu.Registers.GetPc(),
+		" opcode: ", getOpecodeName(opc.name),
+		" addr: ", data,
+		" mode: ", getAddressingMode(opc.mode),
+		)
 
 	cpu.execInstruction(opc.name, data, opc.mode)
 
