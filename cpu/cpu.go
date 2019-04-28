@@ -48,7 +48,7 @@ func (cpu *Cpu) pushStatus() {
 	cpu.push(status)
 }
 
-func (cpu Cpu) popStatus() {
+func (cpu *Cpu) popStatus() {
 	val := cpu.pop()
 	cpu.Registers.P.Negative = val & 0x80 == 0x80
 	cpu.Registers.P.Overflow = val & 0x40 == 0x40
