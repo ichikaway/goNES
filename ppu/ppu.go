@@ -3,7 +3,6 @@ package ppu
 import (
 	"goNES/bus"
 	"goNES/cpu_interrupts"
-	"log"
 )
 
 
@@ -377,12 +376,12 @@ func (this *Ppu) Run(cpuCycle int) bool {
 			this.buildBackground()
 		}
 		if this.Line == 241 {
-			log.Println("before setVblank", this.Registers[0x02])
+			//log.Println("before setVblank", this.Registers[0x02])
 			this.setVblank()
-			log.Println("after setVblank", this.Registers[0x02])
+			//log.Println("after setVblank", this.Registers[0x02])
 			if this.hasVblankIrqEnabled() {
 				this.Interrupts.AssertNmi()
-				log.Println("in hasVblankIrqEnabled: ", this.Interrupts.Nmi)
+				//log.Println("in hasVblankIrqEnabled: ", this.Interrupts.Nmi)
 			}
 		}
 
@@ -409,8 +408,6 @@ func (this *Ppu) Run(cpuCycle int) bool {
 		}
 	}
 
-
-	log.Println("nmi run ppu before return : ", this.Interrupts.Nmi)
 	return false
 }
 

@@ -598,13 +598,13 @@ func (cpu *Cpu) Run() int {
 	//log.Println("------------- CPU run ---------------")
 	//log.Println("run Pc: ", cpu.Registers.PC)
 
-	log.Println("cpu Nmi: ", cpu.Interrupts.Nmi)
+	//log.Println("cpu Nmi: ", cpu.Interrupts.Nmi)
 	if cpu.Interrupts.IsNmiAssert() {
-		log.Println("processNmi()")
+		//log.Println("processNmi()")
 		cpu.processNmi()
 	}
 	if cpu.Interrupts.IsIrqAssert() {
-		log.Println("processIRQ()")
+		//log.Println("processIRQ()")
 		cpu.processIrq()
 	}
 
