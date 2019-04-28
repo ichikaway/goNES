@@ -6,7 +6,6 @@ import (
 	"goNES/cpu_interrupts"
 	"goNES/cpubus"
 	"goNES/util"
-	"log"
 )
 
 type Cpu struct {
