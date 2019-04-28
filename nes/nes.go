@@ -60,6 +60,7 @@ func (nes *Nes) Load() {
 		nes.ProgramRom,
 		nes.Ppu,
 		nes.Dma,
+		bus.NewKeypad(),
 	)
 
 	nes.Cpu = cpu.NewCpu(nes.CpuBus, nes.Interrupts)
@@ -68,20 +69,7 @@ func (nes *Nes) Load() {
 
 func (nes *Nes) frame(keyCh chan termbox.Key, frameCount *int, startTime time.Time) {
 	for {
-		select {
-		case key := <-keyCh:
-			mu.Lock()
-			switch key {
-			case termbox.KeyEsc, termbox.KeyCtrlC: //終了
-				mu.Unlock()
-				os.Exit(0)
-			}
-			mu.Unlock()
-			//fmt.Println(key)
-			break
-		default:
-			break
-		}
+
 
 		cycle := 0
 		if nes.Dma.IsDmaProcessing() {
@@ -91,6 +79,36 @@ func (nes *Nes) frame(keyCh chan termbox.Key, frameCount *int, startTime time.Ti
 		cycle += nes.Cpu.Run()
 
 		if nes.Ppu.Run(cycle * 3) {
+			buttons := [8]bool{}
+			select {
+			case key := <-keyCh:
+				mu.Lock()
+				switch key {
+				case termbox.KeyEsc, termbox.KeyCtrlC: //終了
+					mu.Unlock()
+					os.Exit(0)
+				case termbox.KeyEnter:
+					buttons[bus.ButtonStart] = true
+					nes.CpuBus.Keypad.Update(buttons)
+					break
+				case termbox.KeyDelete:
+					buttons := [8]bool{}
+					nes.CpuBus.Keypad.Update(buttons)
+					break
+				case termbox.KeyArrowDown:
+					buttons[bus.ButtonDown] = true
+					nes.CpuBus.Keypad.Update(buttons)
+					break
+				}
+				mu.Unlock()
+				//fmt.Println(key)
+				break
+			default:
+				nes.CpuBus.Keypad.Update(buttons)
+				break
+			}
+
+
 			*frameCount++
 			renderer := render.NewRenderer(*frameCount, startTime)
 			renderer.Render(nes.Ppu.RenderingData)
