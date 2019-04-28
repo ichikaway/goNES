@@ -17,8 +17,8 @@ type Keypad struct {
 	strobe  byte
 }
 
-func NewKeypad() Keypad{
-		return Keypad{}
+func NewKeypad() *Keypad{
+		return &Keypad{}
 }
 
 func (key *Keypad) Update(buttons [8]bool) {

@@ -87,16 +87,36 @@ func (nes *Nes) frame(keyCh chan termbox.Key, frameCount *int, startTime time.Ti
 				case termbox.KeyEsc, termbox.KeyCtrlC: //終了
 					mu.Unlock()
 					os.Exit(0)
-				case termbox.KeyEnter:
+				case termbox.KeyF12:
 					buttons[bus.ButtonStart] = true
 					nes.CpuBus.Keypad.Update(buttons)
 					break
-				case termbox.KeyDelete:
-					buttons := [8]bool{}
+				case termbox.KeyF11:
+					buttons[bus.ButtonSelect] = true
+					nes.CpuBus.Keypad.Update(buttons)
+					break
+				case termbox.KeyArrowUp:
+					buttons[bus.ButtonUp] = true
 					nes.CpuBus.Keypad.Update(buttons)
 					break
 				case termbox.KeyArrowDown:
 					buttons[bus.ButtonDown] = true
+					nes.CpuBus.Keypad.Update(buttons)
+					break
+				case termbox.KeyArrowLeft:
+					buttons[bus.ButtonLeft] = true
+					nes.CpuBus.Keypad.Update(buttons)
+					break
+				case termbox.KeyArrowRight:
+					buttons[bus.ButtonRight] = true
+					nes.CpuBus.Keypad.Update(buttons)
+					break
+				case termbox.KeyEnter:
+					buttons[bus.ButtonA] = true
+					nes.CpuBus.Keypad.Update(buttons)
+					break
+				case termbox.KeySpace:
+					buttons[bus.ButtonB] = true
 					nes.CpuBus.Keypad.Update(buttons)
 					break
 				}
@@ -107,7 +127,7 @@ func (nes *Nes) frame(keyCh chan termbox.Key, frameCount *int, startTime time.Ti
 				nes.CpuBus.Keypad.Update(buttons)
 				break
 			}
-
+			nes.CpuBus.Keypad.Update(buttons)
 
 			*frameCount++
 			renderer := render.NewRenderer(*frameCount, startTime)

@@ -615,12 +615,14 @@ func (cpu *Cpu) Run() int {
 	data, additionalCycle := cpu.getAddrOrDataWithAdditionalCycle(opc.mode)
 	//fmt.Println(data, additionalCycle)
 
+	/*
 	log.Println(
 		"PC: ", cpu.Registers.GetPc(),
 		" opcode: ", getOpecodeName(opc.name),
 		" addr: ", data,
 		" mode: ", getAddressingMode(opc.mode),
 		)
+	*/
 
 	cpu.execInstruction(opc.name, data, opc.mode)
 
