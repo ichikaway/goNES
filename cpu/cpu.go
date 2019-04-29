@@ -254,16 +254,16 @@ func (this *Cpu) execInstruction(opecode int, data uint16, mode int) {
 		this.Registers.P.Negative = registers.UpdateNegativeBy(val)
 		this.Registers.P.Zero = registers.UpdateZeroBy(val)
 	case ADC:
-		val := uint8(data)
+		val := data
 		if mode != Immediate {
-			val = this.read(data)
+			val = uint16(this.read(data))
 		}
-		computed := val + this.Registers.A + util.Bool2Uint8(this.Registers.P.Carry)
+		computed := val + uint16(this.Registers.A) + uint16(util.Bool2Uint8(this.Registers.P.Carry))
 		registerA := this.Registers.A
 
-		this.Registers.P.Negative = registers.UpdateNegativeBy(computed)
-		this.Registers.P.Zero = registers.UpdateZeroBy(computed)
-		this.Registers.A = computed
+		this.Registers.P.Negative = registers.UpdateNegativeBy(uint8(computed))
+		this.Registers.P.Zero = registers.UpdateZeroBy(uint8(computed))
+		this.Registers.A = uint8(computed)
 
 		this.Registers.P.Carry = false
 		if computed > 0xFF {
@@ -271,7 +271,7 @@ func (this *Cpu) execInstruction(opecode int, data uint16, mode int) {
 		}
 
 		this.Registers.P.Overflow = false
-		if ((registerA ^ val) & 0x80) == 0 && ((registerA ^ computed) & 0x80) != 0 {
+		if !(((registerA ^ uint8(val)) & 0x80) != 0 && ((registerA ^ uint8(computed)) & 0x80) != 0) {
 			this.Registers.P.Overflow = true
 		}
 	case AND:
