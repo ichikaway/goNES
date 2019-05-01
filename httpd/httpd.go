@@ -4,7 +4,6 @@ import (
 	"goNES/bus"
 	"io"
 	"net/http"
-	"os"
 	"strings"
 )
 
@@ -31,8 +30,8 @@ func GetKeyinput(httpCh chan string, buttons [8]bool) [8]bool {
 	select {
 	case key := <-httpCh:
 		switch key {
-		case "finish":
-			os.Exit(0)
+		//case "finish":
+		//	os.Exit(0)
 		case "start":
 			buttons[bus.ButtonStart] = true
 			break
