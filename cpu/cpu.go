@@ -567,7 +567,7 @@ func rotateToRight(carry bool, data uint8) uint8 {
 	v := data >> 1
 	c := uint8(0x00)
 	if carry {
-		c = 0x08
+		c = 0x80
 	}
 	return v | c
 }
