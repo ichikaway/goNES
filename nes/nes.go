@@ -7,6 +7,7 @@ import (
 	"goNES/cpu_interrupts"
 	"goNES/cpubus"
 	"goNES/dma"
+	"goNES/httpd"
 	"goNES/ppu"
 	"goNES/render"
 	"sync"
@@ -66,7 +67,7 @@ func (nes *Nes) Load() {
 	nes.Cpu.Reset()
 }
 
-func (nes *Nes) frame(keyCh chan termbox.Key, frameCount *int, startTime time.Time) {
+func (nes *Nes) frame(keyCh chan termbox.Key, httpCh chan string, frameCount *int, startTime time.Time) {
 	for {
 		cycle := 0
 		if nes.Dma.IsDmaProcessing() {
@@ -78,6 +79,8 @@ func (nes *Nes) frame(keyCh chan termbox.Key, frameCount *int, startTime time.Ti
 		if nes.Ppu.Run(cycle * 3) {
 			buttons := getKeyinput(keyCh)
 			nes.CpuBus.Keypad.Update(buttons)
+
+			nes.CpuBus.Keypad.Update(httpd.GetKeyinput(httpCh, buttons))
 
 			*frameCount++
 			renderer := render.NewRenderer(*frameCount, startTime)
@@ -108,9 +111,13 @@ func (nes Nes) Start() {
 	keyCh := make(chan termbox.Key)
 	go keyEvent(keyCh)
 
+	httpCh := make(chan string)
+	httpd := httpd.NewHttpd(httpCh)
+	go httpd.StartHttpd()
+
 	startTime := time.Now()
 	frameCount := 0
 	for {
-		nes.frame(keyCh, &frameCount, startTime)
+		nes.frame(keyCh, httpCh, &frameCount, startTime)
 	}
 }
