@@ -202,6 +202,12 @@ func (this *Ppu) readVram() byte {
 
 
 func (this *Ppu) Write(addr uint16, data byte) {
+	/*
+	log.Println(
+		"PPU addr:", addr,
+			" data:", data,
+		)
+	*/
 	if addr == 0x0003 {
 		this.writeSpriteRamAddr(data)
 	}
@@ -222,10 +228,15 @@ func (this *Ppu) Write(addr uint16, data byte) {
 
 
 func (this *Ppu) writeVramData(data byte) {
+	//log.Println("writeVramData:", data, " vramaddr:", this.VramAddr, " calcVramAddr:", this.calcVramAddr())
 	if this.VramAddr >= 0x2000 {
 		if this.VramAddr >= 0x3f00 && this.VramAddr < 0x4000 {
 			this.Palette.Write(this.VramAddr - 0x3f00, data)
 		} else {
+			// VramAddrの番地がramサイズ0x2000を超える場合は無視する
+			if this.calcVramAddr() > 0x2000 {
+				return
+			}
 			this.Vram.Write(this.calcVramAddr(), data)
 		}
 	} else {
@@ -236,14 +247,17 @@ func (this *Ppu) writeVramData(data byte) {
 
 func (this *Ppu) writeVramAddr(data byte) {
 	if this.IsLowerVramAddr {
+		//log.Println("writeVramAddrInLowerVram:", this.VramAddr)
 		this.VramAddr += uint16(data)
 		this.IsLowerVramAddr = false
 		this.IsValidVramAddr = true
 	} else {
+		//log.Println("writeVramAddrNotInLowerVram:", this.VramAddr)
 		this.VramAddr = uint16(data) << 8
 		this.IsLowerVramAddr = true
 		this.IsValidVramAddr = false
 	}
+	//log.Println("writeVramAddrResult:", this.VramAddr)
 }
 
 func (this *Ppu) writeScrollData(data byte) {
