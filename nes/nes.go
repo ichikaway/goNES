@@ -7,9 +7,9 @@ import (
 	"goNES/cpu_interrupts"
 	"goNES/cpubus"
 	"goNES/dma"
+	"goNES/httpd"
 	"goNES/ppu"
 	"goNES/render"
-	"os"
 	"sync"
 	"time"
 )
@@ -67,10 +67,8 @@ func (nes *Nes) Load() {
 	nes.Cpu.Reset()
 }
 
-func (nes *Nes) frame(keyCh chan termbox.Key, frameCount *int, startTime time.Time) {
+func (nes *Nes) frame(keyCh chan termbox.Key, httpCh chan string, frameCount *int, startTime time.Time) {
 	for {
-
-
 		cycle := 0
 		if nes.Dma.IsDmaProcessing() {
 			nes.Dma.RunDma()
@@ -79,55 +77,10 @@ func (nes *Nes) frame(keyCh chan termbox.Key, frameCount *int, startTime time.Ti
 		cycle += nes.Cpu.Run()
 
 		if nes.Ppu.Run(cycle * 3) {
-			buttons := [8]bool{}
-			select {
-			case key := <-keyCh:
-				mu.Lock()
-				switch key {
-				case termbox.KeyEsc, termbox.KeyCtrlC: //終了
-					mu.Unlock()
-					os.Exit(0)
-				case termbox.KeyF12:
-					buttons[bus.ButtonStart] = true
-					nes.CpuBus.Keypad.Update(buttons)
-					break
-				case termbox.KeyF11:
-					buttons[bus.ButtonSelect] = true
-					nes.CpuBus.Keypad.Update(buttons)
-					break
-				case termbox.KeyArrowUp:
-					buttons[bus.ButtonUp] = true
-					nes.CpuBus.Keypad.Update(buttons)
-					break
-				case termbox.KeyArrowDown:
-					buttons[bus.ButtonDown] = true
-					nes.CpuBus.Keypad.Update(buttons)
-					break
-				case termbox.KeyArrowLeft:
-					buttons[bus.ButtonLeft] = true
-					nes.CpuBus.Keypad.Update(buttons)
-					break
-				case termbox.KeyArrowRight:
-					buttons[bus.ButtonRight] = true
-					nes.CpuBus.Keypad.Update(buttons)
-					break
-				case termbox.KeyEnter:
-					buttons[bus.ButtonA] = true
-					nes.CpuBus.Keypad.Update(buttons)
-					break
-				case termbox.KeySpace:
-					buttons[bus.ButtonB] = true
-					nes.CpuBus.Keypad.Update(buttons)
-					break
-				}
-				mu.Unlock()
-				//fmt.Println(key)
-				break
-			default:
-				nes.CpuBus.Keypad.Update(buttons)
-				break
-			}
+			buttons := getKeyinput(keyCh)
 			nes.CpuBus.Keypad.Update(buttons)
+
+			nes.CpuBus.Keypad.Update(httpd.GetKeyinput(httpCh, buttons))
 
 			*frameCount++
 			renderer := render.NewRenderer(*frameCount, startTime)
@@ -137,26 +90,16 @@ func (nes *Nes) frame(keyCh chan termbox.Key, frameCount *int, startTime time.Ti
 	}
 }
 
-func keyEvent(kch chan termbox.Key) {
-	for {
-		switch ev := termbox.PollEvent(); ev.Type {
-		case termbox.EventKey:
-			kch <- ev.Key
-		default:
-		}
-	}
-}
-
 func (nes Nes) Start() {
 	/*
-	fmt.Println("nes: ", nes.Interrupts)
-	fmt.Println("cpu: ", nes.Cpu.Interrupts)
-	fmt.Println("ppu: ", nes.Ppu.Interrupts)
-	nes.Interrupts.AssertNmi()
-	fmt.Println("nes: ", nes.Interrupts)
-	fmt.Println("cpu: ", nes.Cpu.Interrupts)
-	fmt.Println("ppu: ", nes.Ppu.Interrupts)
-	os.Exit(1)
+		fmt.Println("nes: ", nes.Interrupts)
+		fmt.Println("cpu: ", nes.Cpu.Interrupts)
+		fmt.Println("ppu: ", nes.Ppu.Interrupts)
+		nes.Interrupts.AssertNmi()
+		fmt.Println("nes: ", nes.Interrupts)
+		fmt.Println("cpu: ", nes.Cpu.Interrupts)
+		fmt.Println("ppu: ", nes.Ppu.Interrupts)
+		os.Exit(1)
 	*/
 
 	err := termbox.Init()
@@ -168,11 +111,13 @@ func (nes Nes) Start() {
 	keyCh := make(chan termbox.Key)
 	go keyEvent(keyCh)
 
+	httpCh := make(chan string)
+	httpd := httpd.NewHttpd(httpCh)
+	go httpd.StartHttpd()
 
 	startTime := time.Now()
 	frameCount := 0
 	for {
-		nes.frame(keyCh, &frameCount, startTime)
+		nes.frame(keyCh, httpCh, &frameCount, startTime)
 	}
 }
-
