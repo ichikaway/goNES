@@ -6,6 +6,7 @@ import (
 	"goNES/cpu_interrupts"
 	"goNES/cpubus"
 	"goNES/util"
+	"log"
 )
 
 type Cpu struct {
@@ -614,14 +615,7 @@ func (cpu *Cpu) Run() int {
 	data, additionalCycle := cpu.getAddrOrDataWithAdditionalCycle(opc.mode)
 	//fmt.Println(data, additionalCycle)
 
-	/*
-	log.Println(
-		"PC: ", cpu.Registers.GetPc(),
-		" opcode: ", getOpecodeName(opc.name),
-		" addr: ", data,
-		" mode: ", getAddressingMode(opc.mode),
-		)
-	*/
+	cpu.debug(data, opcode, opc)
 
 	cpu.execInstruction(opc.name, data, opc.mode)
 
@@ -632,4 +626,25 @@ func (cpu *Cpu) Run() int {
 
 
 	return cycle
+}
+
+func (cpu Cpu) debug(data uint16, opcode byte, opc Opcode) {
+
+	p := cpu.Registers.P
+	p_status := util.Bool2Uint8(p.Negative)<<7 | util.Bool2Uint8(p.Overflow)<<6 |
+		util.Bool2Uint8(p.Reserved)<<5 | util.Bool2Uint8(p.Break_mode)<<4 |
+		util.Bool2Uint8(p.Decimal_mode)<<3 | util.Bool2Uint8(p.Interrupt)<<2 |
+		util.Bool2Uint8(p.Zero)<<1 | util.Bool2Uint8(p.Carry)
+
+	log.Println(
+		"PC:", util.Dec2Hex(cpu.Registers.GetPc()-1),
+		util.Dec2Hex(opcode), util.Dec2Hex(data),
+		" A:", util.Dec2Hex(cpu.Registers.A),
+		" X:", util.Dec2Hex(cpu.Registers.X),
+		" Y:", util.Dec2Hex(cpu.Registers.Y),
+		" SP:", util.Dec2Hex(cpu.Registers.SP),
+		" P:", util.Dec2Hex(p_status),
+		" opcode:", getOpecodeName(opc.name),
+		"mode:", getAddressingMode(opc.mode),
+	)
 }
