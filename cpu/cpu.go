@@ -629,6 +629,9 @@ func (cpu *Cpu) Run() int {
 }
 
 func (cpu Cpu) debug(data uint16, opcode byte, opc Opcode) {
+	if !util.DebugMode() {
+		return
+	}
 
 	p := cpu.Registers.P
 	p_status := util.Bool2Uint8(p.Negative)<<7 | util.Bool2Uint8(p.Overflow)<<6 |

@@ -2,6 +2,7 @@ package util
 
 import (
 	"fmt"
+	"os"
 	"time"
 )
 
@@ -24,4 +25,14 @@ func GetFps(count int, startTime time.Time) int {
 
 func Dec2Hex(i interface{}) interface{}{
 	return fmt.Sprintf("%02X", i)
+}
+
+func DebugMode() bool {
+	if len(os.Args) > 2 {
+		debug := os.Args[2]
+		if debug == "debug" {
+			return true
+		}
+	}
+	return false
 }
