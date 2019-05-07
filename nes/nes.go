@@ -25,15 +25,15 @@ type Rom struct {
 
 type Nes struct {
 	Rom          Rom
-	Ram          bus.Ram
-	characterMem bus.Ram
+	Ram          *bus.Ram
+	characterMem *bus.Ram
 	ProgramRom   bus.Rom
-	PpuBus       bus.PpuBus
+	PpuBus       *bus.PpuBus
 	Interrupts   *cpu_interrupts.Interrupts
-	Dma          dma.Dma
-	Ppu          ppu.Ppu
-	CpuBus       cpubus.CpuBus
-	Cpu          cpu.Cpu
+	Dma          *dma.Dma
+	Ppu          *ppu.Ppu
+	CpuBus       *cpubus.CpuBus
+	Cpu          *cpu.Cpu
 }
 
 func New(data []byte) Nes {
@@ -41,14 +41,14 @@ func New(data []byte) Nes {
 }
 
 func (nes *Nes) Load() {
-	nes.Ram = bus.NewRam(2048)
-	nes.characterMem = bus.NewRam(0x4000)
+	nes.Ram = bus.NewRamPointer(2048)
+	nes.characterMem = bus.NewRamPointer(0x4000)
 	for i := 0; i < len(nes.Rom.CharacterRom); i++ {
 		nes.characterMem.Write(uint16(i), nes.Rom.CharacterRom[i])
 	}
 
 	nes.ProgramRom = bus.NewRom(nes.Rom.ProgramRom)
-	nes.PpuBus = bus.NewPpuBus(&nes.characterMem)
+	nes.PpuBus = bus.NewPpuBus(nes.characterMem)
 	nes.Interrupts = cpu_interrupts.NewInterrupts()
 
 	nes.Ppu = ppu.NewPpu(nes.PpuBus, nes.Interrupts, nes.Rom.isHorizontalMirror)

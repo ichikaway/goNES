@@ -6,7 +6,7 @@ type Registers struct {
 	Y  byte
 	SP byte
 	PC uint16
-	P  Status
+	P  *Status
 }
 
 type Status struct {
@@ -20,14 +20,14 @@ type Status struct {
 	Carry        bool
 }
 
-func GetDefaultRegisters() Registers {
-	return Registers{
+func GetDefaultRegisters() *Registers {
+	return &Registers{
 		A:  0,
 		X:  0,
 		Y:  0,
 		PC: 0x8000,
 		SP: 0xFD,
-		P: Status{
+		P: &Status{
 			Negative:     false,
 			Overflow:     false,
 			Reserved:     true,

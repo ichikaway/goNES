@@ -6,20 +6,20 @@ import (
 )
 
 type Dma struct {
-	Ram          bus.Ram
-	Ppu          ppu.Ppu
+	Ram          *bus.Ram
+	Ppu          *ppu.Ppu
 	isProcessing bool
 	Register     byte
 }
 
-func NewDma(ram bus.Ram, ppu ppu.Ppu) Dma {
+func NewDma(ram *bus.Ram, ppu *ppu.Ppu) *Dma {
 	dma := Dma{
 		Ram:          ram,
 		Ppu:          ppu,
 		isProcessing: false,
 		Register:     0x0000,
 	}
-	return dma
+	return &dma
 }
 
 func (dma Dma) IsDmaProcessing() bool {
@@ -32,10 +32,10 @@ func (this *Dma) RunDma() {
 	}
 
 	addr := uint16(this.Register) << 8
-	for i := uint16(0x0000); i < 0x100; i++  {
+	for i := uint16(0x0000); i < 0x100; i++ {
 		this.Ppu.TransferSprite(i, this.Ram.Read(addr+i))
 	}
-	this.isProcessing = false;
+	this.isProcessing = false
 }
 
 func (dma *Dma) Write(data byte) {

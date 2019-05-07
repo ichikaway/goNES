@@ -5,7 +5,6 @@ import (
 	"goNES/cpu_interrupts"
 )
 
-
 // PPU power up state
 // see. https://wiki.nesdev.com/w/index.php/PPU_power_up_state
 //
@@ -58,7 +57,6 @@ import (
 |  0   | Display type      0: color, 1: mono         |
 */
 
-
 const SPRITES_NUMBER = 0x100
 
 const SPRITES_ARRAY_MAX = 64
@@ -68,20 +66,20 @@ const CYCLES_PER_LINE = 341
 type Sprite [8][8]byte
 
 type Ppu struct {
-	Registers       []byte
-	Cycle           int
-	Line            int
-	IsValidVramAddr bool
-	IsLowerVramAddr bool
-	SpriteRamAddr   uint16
-	VramAddr        uint16
-	Vram            bus.Ram
-	VramReadBuf     byte
-	SpriteRam       bus.Ram
-	Bus             bus.PpuBus
-	Background      Background
-	Sprites         []SpriteWithAttribute
-    RenderingData   RenderingData
+	Registers         []byte
+	Cycle             int
+	Line              int
+	IsValidVramAddr   bool
+	IsLowerVramAddr   bool
+	SpriteRamAddr     uint16
+	VramAddr          uint16
+	Vram              bus.Ram
+	VramReadBuf       byte
+	SpriteRam         bus.Ram
+	Bus               *bus.PpuBus
+	Background        Background
+	Sprites           []SpriteWithAttribute
+	RenderingData     RenderingData
 	Palette           PaletteRam
 	Interrupts        *cpu_interrupts.Interrupts
 	IsHrizontalScroll bool
@@ -90,7 +88,7 @@ type Ppu struct {
 	IsHrizontalMirror bool
 }
 
-func NewPpu(ppubus bus.PpuBus, interrupts *cpu_interrupts.Interrupts, isHrizontalMirror bool) Ppu {
+func NewPpu(ppubus *bus.PpuBus, interrupts *cpu_interrupts.Interrupts, isHrizontalMirror bool) *Ppu {
 	ppu := Ppu{
 		Registers:         make([]byte, 8),
 		Cycle:             0,
@@ -113,10 +111,10 @@ func NewPpu(ppubus bus.PpuBus, interrupts *cpu_interrupts.Interrupts, isHrizonta
 		Palette:           NewPaletteRam(),
 		RenderingData:     RenderingData{},
 	}
-	return ppu
+	return &ppu
 }
 
-func (this *Ppu)TransferSprite(index uint16, data byte) {
+func (this *Ppu) TransferSprite(index uint16, data byte) {
 	// The DMA transfer will begin at the current OAM write address.
 	// It is common practice to initialize it to 0 with a write to PPU 0x2003 before the DMA transfer.
 	// Different starting addresses can be used for a simple OAM cycling technique
@@ -125,10 +123,8 @@ func (this *Ppu)TransferSprite(index uint16, data byte) {
 	// (See: Errata).
 	// However, due to OAMADDR writes also having a "corruption" effect[5] this technique is not recommended.
 	addr := index + this.SpriteRamAddr
-	this.SpriteRam.Write(addr % 0x100, data) //256以上のアドレスに入れさせないために256の剰余を求める
+	this.SpriteRam.Write(addr%0x100, data) //256以上のアドレスに入れさせないために256の剰余を求める
 }
-
-
 
 func (this *Ppu) clearVblank() {
 	this.Registers[0x02] &= 0x7F
@@ -140,13 +136,13 @@ func (this *Ppu) clearSpriteHit() {
 
 func (this Ppu) Read(addr uint16) byte {
 	/*
-        | bit  | description                                 |
-        +------+---------------------------------------------+
-        | 7    | 1: VBlank clear by reading this register    |
-        | 6    | 1: sprite hit                               |
-        | 5    | 0: less than 8, 1: 9 or more                |
-        | 4-0  | invalid                                     |
-        |      | bit4 VRAM write flag [0: success, 1: fail]  |
+	   | bit  | description                                 |
+	   +------+---------------------------------------------+
+	   | 7    | 1: VBlank clear by reading this register    |
+	   | 6    | 1: sprite hit                               |
+	   | 5    | 0: less than 8, 1: 9 or more                |
+	   | 4-0  | invalid                                     |
+	   |      | bit4 VRAM write flag [0: success, 1: fail]  |
 	*/
 
 	if addr == 0x0002 {
@@ -175,7 +171,6 @@ func (this Ppu) vramOffset() uint16 {
 	return 1
 }
 
-
 func (this Ppu) calcVramAddr() uint16 {
 	if this.VramAddr >= 0x3000 && this.VramAddr < 0x3f00 {
 		return this.VramAddr - 0x3000
@@ -199,8 +194,6 @@ func (this *Ppu) readVram() byte {
 	return buf
 }
 
-
-
 func (this *Ppu) Write(addr uint16, data byte) {
 	if addr == 0x0003 {
 		this.writeSpriteRamAddr(data)
@@ -220,11 +213,10 @@ func (this *Ppu) Write(addr uint16, data byte) {
 	this.Registers[addr] = data
 }
 
-
 func (this *Ppu) writeVramData(data byte) {
 	if this.VramAddr >= 0x2000 {
 		if this.VramAddr >= 0x3f00 && this.VramAddr < 0x4000 {
-			this.Palette.Write(this.VramAddr - 0x3f00, data)
+			this.Palette.Write(this.VramAddr-0x3f00, data)
 		} else {
 			this.Vram.Write(this.calcVramAddr(), data)
 		}
@@ -284,9 +276,8 @@ func (this *Ppu) setVblank() {
 	this.Registers[0x02] |= 0x80
 }
 func (this Ppu) hasVblankIrqEnabled() bool {
-	return this.Registers[0] & 0x80 == 0x80
+	return this.Registers[0]&0x80 == 0x80
 }
-
 
 func (this *Ppu) setSpriteHit() {
 	this.Registers[0x02] |= 0x40
@@ -298,16 +289,16 @@ func (this Ppu) nameTableId() byte {
 
 func (this Ppu) scrollTileX() int {
 	/*
-    Name table id and address
-    +------------+------------+
-    |            |            |
-    |  0(0x2000) |  1(0x2400) |
-    |            |            |
-    +------------+------------+
-    |            |            |
-    |  2(0x2800) |  3(0x2C00) |
-    |            |            |
-    +------------+------------+
+	   Name table id and address
+	   +------------+------------+
+	   |            |            |
+	   |  0(0x2000) |  1(0x2400) |
+	   |            |            |
+	   +------------+------------+
+	   |            |            |
+	   |  2(0x2800) |  3(0x2C00) |
+	   |            |            |
+	   +------------+------------+
 	*/
 	return (int(this.ScrollX) + ((int(this.nameTableId()) % 2) * 256)) / 8
 }
@@ -321,7 +312,7 @@ func (this Ppu) tileY() int {
 }
 
 func getBlockId(tileX int, tileY int) byte {
-	return uint8(((tileX % 4) / 2) + ((tileY % 4) / 2) * 2)
+	return uint8(((tileX % 4) / 2) + ((tileY%4)/2)*2)
 }
 
 func (this Ppu) getAttribute(tileX int, tileY int, offset int) byte {
@@ -330,7 +321,7 @@ func (this Ppu) getAttribute(tileX int, tileY int, offset int) byte {
 }
 
 func (this Ppu) getSpriteId(tileX int, tileY int, offset int) byte {
-	tileNumber := tileY * 32 + tileX
+	tileNumber := tileY*32 + tileX
 	spriteAddr := this.mirrorDownSpriteAddr(uint16(tileNumber + offset))
 	return this.Vram.Read(spriteAddr)
 }
@@ -352,14 +343,13 @@ func (this Ppu) backgroundTableOffset() uint16 {
 	return 0x0000
 }
 
-
 func (this *Ppu) Run(cpuCycle int) bool {
 	cycle := this.Cycle + cpuCycle
 	this.Cycle = cycle
 	if cycle < CYCLES_PER_LINE {
 		return false
 	}
-//fmt.Println("cycle: ", cycle, " line: ", this.Line)
+	//fmt.Println("cycle: ", cycle, " line: ", this.Line)
 	if this.Line == 0 {
 		this.Background.Clear()
 		this.buildSprites()
@@ -372,7 +362,7 @@ func (this *Ppu) Run(cpuCycle int) bool {
 		if this.hasSpriteHit() {
 			this.setSpriteHit()
 		}
-		if this.Line <= 240 && this.Line % 8 == 0 && this.ScrollY <= 240 {
+		if this.Line <= 240 && this.Line%8 == 0 && this.ScrollY <= 240 {
 			this.buildBackground()
 		}
 		if this.Line == 241 {
@@ -423,7 +413,7 @@ func (this *Ppu) buildBackground() {
 	}
 	// background of a line.
 	// Build viewport + 1 tile for background scroll.
-	for x := 0 ; x < 32 + 1 ; x = (x+1) {
+	for x := 0; x < 32+1; x = (x + 1) {
 		tileX := x + this.scrollTileX()
 		clampedTileX := tileX % 32
 		nameTableId := ((tileX / 32) % 2) + tableIdOffset
@@ -449,7 +439,6 @@ func (this Ppu) buildTile(tileX int, tileY int, offset int) Tile {
 	}
 }
 
-
 func (this *Ppu) buildSprites() {
 	var offset uint16 = 0x0000
 	var sprite Sprite
@@ -458,7 +447,7 @@ func (this *Ppu) buildSprites() {
 		offset = 0x1000
 	}
 
-	for i := 0 ; i < SPRITES_NUMBER ; i = (i+4)  {
+	for i := 0; i < SPRITES_NUMBER; i = (i + 4) {
 		// INFO: Offset sprite Y position, because First and last 8line is not rendered.
 
 		y := this.SpriteRam.Read(uint16(i))
@@ -466,9 +455,9 @@ func (this *Ppu) buildSprites() {
 			return
 		}
 
-		spriteId := this.SpriteRam.Read(uint16(i+1))
-		attr := this.SpriteRam.Read(uint16(i+2))
-		x := this.SpriteRam.Read(uint16(i+3))
+		spriteId := this.SpriteRam.Read(uint16(i + 1))
+		attr := this.SpriteRam.Read(uint16(i + 2))
+		x := this.SpriteRam.Read(uint16(i + 3))
 		sprite = this.buildSprite(spriteId, offset)
 		this.Sprites[i/4] = NewStripeWithAttribute(sprite, x, y, attr, spriteId)
 		//fmt.Println(sprite)
@@ -477,11 +466,11 @@ func (this *Ppu) buildSprites() {
 
 func (this *Ppu) buildSprite(spriteId uint8, offset uint16) Sprite {
 	sprite := Sprite{}
-	for i := 0 ; i < 16 ; i++ {
-		for j := 0 ; j < 8 ; j++ {
-			addr := uint16(spriteId) * 16 + uint16(i) + offset
+	for i := 0; i < 16; i++ {
+		for j := 0; j < 8; j++ {
+			addr := uint16(spriteId)*16 + uint16(i) + offset
 			ram := this.readCharacterRAM(addr)
-			if (ram & uint8(0x80 >> uint8(j))) != 0 {
+			if (ram & uint8(0x80>>uint8(j))) != 0 {
 				sprite[i%8][j] += uint8(0x01 << uint8(i/8))
 			}
 		}

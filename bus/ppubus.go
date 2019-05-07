@@ -4,8 +4,8 @@ type PpuBus struct {
 	CharacterRam Ram
 }
 
-func NewPpuBus(characterRam *Ram) PpuBus {
-		return PpuBus{CharacterRam: *characterRam}
+func NewPpuBus(characterRam *Ram) *PpuBus {
+	return &PpuBus{CharacterRam: *characterRam}
 }
 
 func (ram PpuBus) ReadByPpu(addr uint16) byte {

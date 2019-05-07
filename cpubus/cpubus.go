@@ -7,13 +7,12 @@ import (
 )
 
 type CpuBus struct {
-	Ram bus.Ram
+	Ram        *bus.Ram
 	ProgramRom bus.Rom
-	Ppu ppu.Ppu
-	Keypad *bus.Keypad
-	Dma dma.Dma
+	Ppu        *ppu.Ppu
+	Keypad     *bus.Keypad
+	Dma        *dma.Dma
 }
-
 
 func (this CpuBus) ReadWord(addr uint16) uint16 {
 	/**
@@ -22,7 +21,7 @@ func (this CpuBus) ReadWord(addr uint16) uint16 {
 		let upper = self.read(addr + 1) as u16;
 		(upper << 8 | lower) as u16
 	}
-	 */
+	*/
 	lower := uint16(this.ReadByCpu(addr))
 	upper := uint16(this.ReadByCpu(addr + 1))
 
@@ -34,20 +33,19 @@ func (this CpuBus) ReadWord(addr uint16) uint16 {
 	//fmt.Printf("%b\n",upper)
 	//fmt.Printf("%b\n",upper << 8)
 	//fmt.Printf("%b\n", upper << 8 | lower)
-	return uint16(upper << 8 | lower)
+	return uint16(upper<<8 | lower)
 }
 
-
-func NewCpuBus(ram bus.Ram, programRom bus.Rom, ppu ppu.Ppu, dma dma.Dma, keypad *bus.Keypad) CpuBus {
+func NewCpuBus(ram *bus.Ram, programRom bus.Rom, ppu *ppu.Ppu, dma *dma.Dma, keypad *bus.Keypad) *CpuBus {
 
 	cpuBus := CpuBus{
-		Ram: ram,
+		Ram:        ram,
 		ProgramRom: programRom,
-		Ppu: ppu,
-		Dma: dma,
-		Keypad: keypad,
+		Ppu:        ppu,
+		Dma:        dma,
+		Keypad:     keypad,
 	}
-	return cpuBus
+	return &cpuBus
 }
 
 func (this CpuBus) ReadByCpu(addr uint16) byte {
@@ -82,13 +80,12 @@ func (this CpuBus) ReadByCpu(addr uint16) byte {
 	return 0x0000
 }
 
-
 func (this *CpuBus) WriteByCpu(addr uint16, data byte) {
 	switch {
 	case 0x0000 <= addr && addr < 0x0800:
 		this.Ram.Write(addr, data)
 	case 0x0800 <= addr && addr <= 0x1FFF:
-		this.Ram.Write(addr - 0x0800, data)
+		this.Ram.Write(addr-0x0800, data)
 	case 0x2000 <= addr && addr <= 0x3FFF:
 		this.Ppu.Write(addr-0x2000, data)
 	case addr == 0x4014:
@@ -106,4 +103,3 @@ func (this *CpuBus) WriteByCpu(addr uint16, data byte) {
 		//self.mmc.set_bank(data);
 	}
 }
-

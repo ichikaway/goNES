@@ -4,6 +4,10 @@ type Ram struct {
 	ram []byte
 }
 
+func NewRamPointer(size int) *Ram {
+	return &Ram{ram: make([]byte, size)}
+}
+
 func NewRam(size int) Ram {
 	return Ram{ram: make([]byte, size)}
 }
@@ -20,7 +24,6 @@ func (ram *Ram) Write(addr uint16, val byte) {
 	ram.ram[addr] = val
 }
 
-
-func (ram Ram) Size () int {
+func (ram Ram) Size() int {
 	return len(ram.ram)
 }

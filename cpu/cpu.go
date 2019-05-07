@@ -6,19 +6,19 @@ import (
 	"goNES/cpu_interrupts"
 	"goNES/cpubus"
 	"goNES/util"
-)
+	)
 
 type Cpu struct {
-	CpuBus      cpubus.CpuBus
+	CpuBus      *cpubus.CpuBus
 	Interrupts  *cpu_interrupts.Interrupts
-	Registers   registers.Registers
+	Registers   *registers.Registers
 	HasBranched bool
 	Opcode      map[byte]Opcode
 }
 
-func NewCpu(cpubus cpubus.CpuBus, interrupts *cpu_interrupts.Interrupts) Cpu {
+func NewCpu(cpubus *cpubus.CpuBus, interrupts *cpu_interrupts.Interrupts) *Cpu {
 
-	return Cpu{
+	return &Cpu{
 		CpuBus:      cpubus,
 		Interrupts:  interrupts,
 		Registers:   registers.GetDefaultRegisters(),
