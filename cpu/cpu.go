@@ -258,22 +258,26 @@ func (this *Cpu) execInstruction(opecode int, data uint16, mode int) {
 		if mode != Immediate {
 			val = uint16(this.read(data))
 		}
-		computed := val + uint16(this.Registers.A) + uint16(util.Bool2Uint8(this.Registers.P.Carry))
 		registerA := this.Registers.A
+		computed := val + uint16(registerA) + uint16(util.Bool2Uint8(this.Registers.P.Carry))
 
 		this.Registers.P.Negative = registers.UpdateNegativeBy(uint8(computed))
 		this.Registers.P.Zero = registers.UpdateZeroBy(uint8(computed))
-		this.Registers.A = uint8(computed)
 
 		this.Registers.P.Carry = false
 		if computed > 0xFF {
 			this.Registers.P.Carry = true
 		}
 
+		/*
 		this.Registers.P.Overflow = false
 		if !(((registerA ^ uint8(val)) & 0x80) != 0 && ((registerA ^ uint8(computed)) & 0x80) != 0) {
 			this.Registers.P.Overflow = true
 		}
+		*/
+		this.Registers.P.Overflow = !(((registerA ^ uint8(val)) & 0x80) != 0 && ((registerA ^ uint8(computed)) & 0x80) != 0)
+		this.Registers.A = uint8(computed)
+
 	case AND:
 		val := uint8(data)
 		if mode != Immediate {
